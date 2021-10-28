@@ -118,7 +118,7 @@ julia> valuation(p),valuation(p,:x),valuation(p,:y)
 (-1, 0, -2)
 ```
 
-Terms  are totally ordered in an `Mvp`  by a monomial ordering (that is, an ordering  on  monomials  so  that  `x<y`  implies `xz<yz` for any monomials `x,y,z`).  By default, the ordering is `lexless`. The ordering `deglexless` is also implemented.
+Terms  are totally ordered in an `Mvp`  by a monomial ordering (that is, an ordering  on  monomials  so  that  `x<y`  implies `xz<yz` for any monomials `x,y,z`).  By default, the  ordering is `lex`.  The terms are in decreasing order,  so that the  first term is  the highest. The  orderings `grlex` and `grevlex` are also implemented.
 
 An  `Mvp` is a *scalar*  if the valuation and  degree are `0`. The function `scalar`  returns the  constant coefficient  if the  `Mvp` is a scalar, and `nothing` otherwise.
 
@@ -227,6 +227,9 @@ Finally,   `Mvp`s  have   methods  `conj`,   `adjoint`  which   operate  on coef
 
 Despite  the degree of generality of our  polynomials, the speed is not too shabby. For the Fateman test f(f+1) where f=(1+x+y+z+t)^15, we take 4sec. According to the Nemo paper, Sagemath takes 10sec and Nemo takes 1.6sec.
 
+
+<a target='_blank' href='https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/03af83087258afd4fb6f4efb9f81ed7f5ac0ba8f/src/PuiseuxPolynomials.jl#L1-L269' class='documenter-source'>source</a><br>
+
 <a id='PuiseuxPolynomials.Mvp' href='#PuiseuxPolynomials.Mvp'>#</a>
 **`PuiseuxPolynomials.Mvp`** &mdash; *Type*.
 
@@ -241,6 +244,9 @@ Pol{Int64}: q
 julia> Mvp(q^2+q)
 Mvp{Int64}: q²+q
 ```
+
+
+<a target='_blank' href='https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/03af83087258afd4fb6f4efb9f81ed7f5ac0ba8f/src/PuiseuxPolynomials.jl#L813-L823' class='documenter-source'>source</a><br>
 
 <a id='LaurentPolynomials.valuation' href='#LaurentPolynomials.valuation'>#</a>
 **`LaurentPolynomials.valuation`** &mdash; *Function*.
@@ -261,6 +267,9 @@ julia> valuation(a), valuation(a,:y), valuation(a,:x)
 (2, 0, 1)
 ```
 
+
+<a target='_blank' href='https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/03af83087258afd4fb6f4efb9f81ed7f5ac0ba8f/src/PuiseuxPolynomials.jl#L613-L629' class='documenter-source'>source</a><br>
+
 <a id='LaurentPolynomials.degree' href='#LaurentPolynomials.degree'>#</a>
 **`LaurentPolynomials.degree`** &mdash; *Function*.
 
@@ -280,6 +289,9 @@ julia> degree(a), degree(a,:y), degree(a,:x)
 (2, 1, 2)
 ```
 
+
+<a target='_blank' href='https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/03af83087258afd4fb6f4efb9f81ed7f5ac0ba8f/src/PuiseuxPolynomials.jl#L593-L609' class='documenter-source'>source</a><br>
+
 <a id='PuiseuxPolynomials.variables' href='#PuiseuxPolynomials.variables'>#</a>
 **`PuiseuxPolynomials.variables`** &mdash; *Function*.
 
@@ -298,6 +310,9 @@ julia> variables([x+y+1,z])
  :y
  :z
 ```
+
+
+<a target='_blank' href='https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/03af83087258afd4fb6f4efb9f81ed7f5ac0ba8f/src/PuiseuxPolynomials.jl#L830-L845' class='documenter-source'>source</a><br>
 
 <a id='LaurentPolynomials.coefficients-Tuple{Mvp, Symbol}' href='#LaurentPolynomials.coefficients-Tuple{Mvp, Symbol}'>#</a>
 **`LaurentPolynomials.coefficients`** &mdash; *Method*.
@@ -335,6 +350,9 @@ Dict{Int64, Mvp{Int64, Int64}} with 9 entries:
 
 The  same  caveat  is  applicable  to  `coefficients` as to evaluating: the values  are always `Mvp`s. To get a list of scalars for the coefficients of a  univariate polynomial represented as a `Mvp`, one should use `scalar` on the values of `coefficients`.
 
+
+<a target='_blank' href='https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/03af83087258afd4fb6f4efb9f81ed7f5ac0ba8f/src/PuiseuxPolynomials.jl#L672-L707' class='documenter-source'>source</a><br>
+
 <a id='LaurentPolynomials.coefficients-Tuple{Mvp}' href='#LaurentPolynomials.coefficients-Tuple{Mvp}'>#</a>
 **`LaurentPolynomials.coefficients`** &mdash; *Method*.
 
@@ -343,6 +361,9 @@ The  same  caveat  is  applicable  to  `coefficients` as to evaluating: the valu
 `coefficients(p::Mvp)` 
 
 is an efficient iterator over the coefficients of the monomials in `p`
+
+
+<a target='_blank' href='https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/03af83087258afd4fb6f4efb9f81ed7f5ac0ba8f/src/PuiseuxPolynomials.jl#L665-L669' class='documenter-source'>source</a><br>
 
 <a id='PuiseuxPolynomials.coefficient' href='#PuiseuxPolynomials.coefficient'>#</a>
 **`PuiseuxPolynomials.coefficient`** &mdash; *Function*.
@@ -365,6 +386,9 @@ julia> coefficient(p,Monomial()) # constant coefficient
 ```
 
 
+<a target='_blank' href='https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/03af83087258afd4fb6f4efb9f81ed7f5ac0ba8f/src/PuiseuxPolynomials.jl#L633-L648' class='documenter-source'>source</a><br>
+
+
 `coefficient(p::Mvp, var::Symbol, d)` 
 
 returns  the coefficient of degree `d` in the variable `var` in the `Mvp` `p`.
@@ -380,6 +404,9 @@ julia> coefficient(p,:x,1)
 Mvp{Int64,Rational{Int64}}: 3y+6y½+3
 ```
 
+
+<a target='_blank' href='https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/03af83087258afd4fb6f4efb9f81ed7f5ac0ba8f/src/PuiseuxPolynomials.jl#L725-L740' class='documenter-source'>source</a><br>
+
 <a id='PuiseuxPolynomials.monomials' href='#PuiseuxPolynomials.monomials'>#</a>
 **`PuiseuxPolynomials.monomials`** &mdash; *Function*.
 
@@ -388,6 +415,19 @@ Mvp{Int64,Rational{Int64}}: 3y+6y½+3
 `monomials(p::Mvp)` 
 
 is an efficient iterator over the monomials of `p`
+
+
+<a target='_blank' href='https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/03af83087258afd4fb6f4efb9f81ed7f5ac0ba8f/src/PuiseuxPolynomials.jl#L658-L662' class='documenter-source'>source</a><br>
+
+<a id='PuiseuxPolynomials.powers' href='#PuiseuxPolynomials.powers'>#</a>
+**`PuiseuxPolynomials.powers`** &mdash; *Function*.
+
+
+
+`powers(a::Monomial)` iterator on the powers of variables in `a`
+
+
+<a target='_blank' href='https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/03af83087258afd4fb6f4efb9f81ed7f5ac0ba8f/src/PuiseuxPolynomials.jl#L307' class='documenter-source'>source</a><br>
 
 <a id='Base.isless-Tuple{Monomial, Monomial}' href='#Base.isless-Tuple{Monomial, Monomial}'>#</a>
 **`Base.isless`** &mdash; *Method*.
@@ -398,6 +438,39 @@ is an efficient iterator over the monomials of `p`
 
 For  our implementation of `Mvp`s to  work, `isless` must define a monomial order (that is, for monomials `m,a,b` we have `a<b => a*m<b*m`). By default we  use the  "lex" ordering.
 
+
+<a target='_blank' href='https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/03af83087258afd4fb6f4efb9f81ed7f5ac0ba8f/src/PuiseuxPolynomials.jl#L407-L413' class='documenter-source'>source</a><br>
+
+<a id='PuiseuxPolynomials.lex' href='#PuiseuxPolynomials.lex'>#</a>
+**`PuiseuxPolynomials.lex`** &mdash; *Function*.
+
+
+
+`lex(a::Monomial, b::Monomial)` The  "lex" ordering,  where `a<b`  if the  first variable  in `a/b` occurs to a positive power.
+
+
+<a target='_blank' href='https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/03af83087258afd4fb6f4efb9f81ed7f5ac0ba8f/src/PuiseuxPolynomials.jl#L369-L373' class='documenter-source'>source</a><br>
+
+<a id='PuiseuxPolynomials.grlex' href='#PuiseuxPolynomials.grlex'>#</a>
+**`PuiseuxPolynomials.grlex`** &mdash; *Function*.
+
+
+
+`grlex(a::Monomial, b::Monomial)` The "grlex" ordering, where `a<b̀` if `degree(a)>degree(b)` or the degrees are equal but `lex(a,b)`.
+
+
+<a target='_blank' href='https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/03af83087258afd4fb6f4efb9f81ed7f5ac0ba8f/src/PuiseuxPolynomials.jl#L384-L388' class='documenter-source'>source</a><br>
+
+<a id='PuiseuxPolynomials.grevlex' href='#PuiseuxPolynomials.grevlex'>#</a>
+**`PuiseuxPolynomials.grevlex`** &mdash; *Function*.
+
+
+
+`grevlex(a::Monomial, b::Monomial)` The "grevlex" ordering, where `a<b̀` if `degree(a)>degree(b)` or the degrees are equal but the las variable in $a/b$ occurs to a negative power
+
+
+<a target='_blank' href='https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/03af83087258afd4fb6f4efb9f81ed7f5ac0ba8f/src/PuiseuxPolynomials.jl#L395-L399' class='documenter-source'>source</a><br>
+
 <a id='Base.pairs-Tuple{Mvp}' href='#Base.pairs-Tuple{Mvp}'>#</a>
 **`Base.pairs`** &mdash; *Method*.
 
@@ -406,6 +479,9 @@ For  our implementation of `Mvp`s to  work, `isless` must define a monomial orde
 `pairs(p::Mvp)` 
 
 returns the pairs monomial=>coefficient in `p`
+
+
+<a target='_blank' href='https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/03af83087258afd4fb6f4efb9f81ed7f5ac0ba8f/src/PuiseuxPolynomials.jl#L651-L655' class='documenter-source'>source</a><br>
 
 <a id='LaurentPolynomials.Pol-Union{Tuple{Mvp{T, N} where N}, Tuple{T}} where T' href='#LaurentPolynomials.Pol-Union{Tuple{Mvp{T, N} where N}, Tuple{T}} where T'>#</a>
 **`LaurentPolynomials.Pol`** &mdash; *Method*.
@@ -420,6 +496,9 @@ converts the one-variable `Mvp{T}` `p` to a `Pol{T}`. It is an error if `p`   ha
 julia> @Mvp x; @Pol q; Pol(x^2+x)
 Pol{Int64}: q²+q
 ```
+
+
+<a target='_blank' href='https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/03af83087258afd4fb6f4efb9f81ed7f5ac0ba8f/src/PuiseuxPolynomials.jl#L758-L768' class='documenter-source'>source</a><br>
 
 <a id='LaurentPolynomials.Pol-Union{Tuple{N}, Tuple{T}, Tuple{Mvp{T, N}, Symbol}} where {T, N}' href='#LaurentPolynomials.Pol-Union{Tuple{N}, Tuple{T}, Tuple{Mvp{T, N}, Symbol}} where {T, N}'>#</a>
 **`LaurentPolynomials.Pol`** &mdash; *Method*.
@@ -437,6 +516,9 @@ Mvp{Int64,Rational{Int64}}: x³+3x²y½+3xy+y³⁄₂
 julia> Pol(:q); Pol(p,:x)
 Pol{Mvp{Int64, Rational{Int64}}}: q³+3y½q²+3yq+y³⁄₂
 ```
+
+
+<a target='_blank' href='https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/03af83087258afd4fb6f4efb9f81ed7f5ac0ba8f/src/PuiseuxPolynomials.jl#L779-L793' class='documenter-source'>source</a><br>
 
 <a id='PuiseuxPolynomials.value' href='#PuiseuxPolynomials.value'>#</a>
 **`PuiseuxPolynomials.value`** &mdash; *Function*.
@@ -490,6 +572,9 @@ julia> p(;y=2.0)
 Mvp{Float64,Rational{Int64}}: 1.2599210498948732x½
 ```
 
+
+<a target='_blank' href='https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/03af83087258afd4fb6f4efb9f81ed7f5ac0ba8f/src/PuiseuxPolynomials.jl#L884-L931' class='documenter-source'>source</a><br>
+
 <a id='Base.conj' href='#Base.conj'>#</a>
 **`Base.conj`** &mdash; *Function*.
 
@@ -501,6 +586,9 @@ Mvp{Float64,Rational{Int64}}: 1.2599210498948732x½
 julia> @Mvp x;conj(im*x+1)
 Mvp{Complex{Int64}}: (0 - 1im)x+1 + 0im
 ```
+
+
+<a target='_blank' href='https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/03af83087258afd4fb6f4efb9f81ed7f5ac0ba8f/src/PuiseuxPolynomials.jl#L571-L578' class='documenter-source'>source</a><br>
 
 <a id='LaurentPolynomials.derivative' href='#LaurentPolynomials.derivative'>#</a>
 **`LaurentPolynomials.derivative`** &mdash; *Function*.
@@ -535,6 +623,9 @@ julia> derivative(p,:z)
 Mvp{Rational{Int64},Rational{Int64}}: 0
 ```
 
+
+<a target='_blank' href='https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/03af83087258afd4fb6f4efb9f81ed7f5ac0ba8f/src/PuiseuxPolynomials.jl#L1017-L1046' class='documenter-source'>source</a><br>
+
 <a id='PuiseuxPolynomials.laurent_denominator' href='#PuiseuxPolynomials.laurent_denominator'>#</a>
 **`PuiseuxPolynomials.laurent_denominator`** &mdash; *Function*.
 
@@ -549,6 +640,9 @@ julia> laurent_denominator(x^-1,y^-2+x^4)
 Monomial{Int64}:xy²
 ```
 
+
+<a target='_blank' href='https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/03af83087258afd4fb6f4efb9f81ed7f5ac0ba8f/src/PuiseuxPolynomials.jl#L1119-L1129' class='documenter-source'>source</a><br>
+
 <a id='Base.gcd-Tuple{Mvp, Mvp}' href='#Base.gcd-Tuple{Mvp, Mvp}'>#</a>
 **`Base.gcd`** &mdash; *Method*.
 
@@ -560,6 +654,9 @@ Monomial{Int64}:xy²
 julia> gcd(x^2-y^2,(x+y)^2)
 Mvp{Int64}: -x-y
 ```
+
+
+<a target='_blank' href='https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/03af83087258afd4fb6f4efb9f81ed7f5ac0ba8f/src/PuiseuxPolynomials.jl#L1084-L1092' class='documenter-source'>source</a><br>
 
 <a id='Base.lcm-Tuple{Mvp, Mvp}' href='#Base.lcm-Tuple{Mvp, Mvp}'>#</a>
 **`Base.lcm`** &mdash; *Method*.
@@ -574,6 +671,9 @@ Returns  the Lcm  of the  `Mvp` arguments.  The arguments  must be  true polynom
 julia> lcm(x^2-y^2,(x+y)^2)
 Mvp{Int64}: -x³-x²y+xy²+y³
 ```
+
+
+<a target='_blank' href='https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/03af83087258afd4fb6f4efb9f81ed7f5ac0ba8f/src/PuiseuxPolynomials.jl#L1132-L1142' class='documenter-source'>source</a><br>
 
 <a id='LaurentPolynomials.scalar' href='#LaurentPolynomials.scalar'>#</a>
 **`LaurentPolynomials.scalar`** &mdash; *Function*.
@@ -600,6 +700,9 @@ Int64
 
 if  `p` is an array, then apply `scalar` to its elements and return `nothing` if it contains any `Mvp` which is not a scalar.
 
+
+<a target='_blank' href='https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/03af83087258afd4fb6f4efb9f81ed7f5ac0ba8f/src/PuiseuxPolynomials.jl#L850-L870' class='documenter-source'>source</a><br>
+
 <a id='Base.:^-Tuple{Mvp, AbstractMatrix{T} where T}' href='#Base.:^-Tuple{Mvp, AbstractMatrix{T} where T}'>#</a>
 **`Base.:^`** &mdash; *Method*.
 
@@ -616,6 +719,9 @@ julia> (x+y)^[1 2;3 1]
 Mvp{Int64}: 3x+4y
 ```
 
+
+<a target='_blank' href='https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/03af83087258afd4fb6f4efb9f81ed7f5ac0ba8f/src/PuiseuxPolynomials.jl#L990-L1005' class='documenter-source'>source</a><br>
+
 <a id='LaurentPolynomials.Frac-Tuple{T} where T<:Mvp' href='#LaurentPolynomials.Frac-Tuple{T} where T<:Mvp'>#</a>
 **`LaurentPolynomials.Frac`** &mdash; *Method*.
 
@@ -624,4 +730,75 @@ Mvp{Int64}: 3x+4y
 `Frac(a::Mvp,b::Mvp;pol=false,prime=false)`
 
 `Mvp`s  `a` and `b` are promoted to  same coefficient type, and checked for being  true polynomials  without common  monomial factor (unless `pol=true` asserts  that this  is already  the case)  and unless `prime=true` they are made prime to each other by dividing by their gcd.
+
+
+<a target='_blank' href='https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/03af83087258afd4fb6f4efb9f81ed7f5ac0ba8f/src/PuiseuxPolynomials.jl#L1159-L1166' class='documenter-source'>source</a><br>
+
+<a id='PuiseuxPolynomials.grobner_basis' href='#PuiseuxPolynomials.grobner_basis'>#</a>
+**`PuiseuxPolynomials.grobner_basis`** &mdash; *Function*.
+
+
+
+`grobner_basis(F;lt=lex)`
+
+computes  a Gröbner basis  of the polynomial  ideal generated by the `Mvp`s given  by the vector `F`. The  keyword `lt` describes the monomial ordering to use.
+
+```julia-repl
+julia> @Mvp x,y,z; F=[x^2+y^2+z^2-1,x^2-y+z^2,x-z]
+3-element Vector{Mvp{Int64, Int64}}:
+ x²+y²+z²-1
+ x²-y+z²
+ x-z
+
+julia> grobner_basis(F)
+3-element Vector{Mvp{Int64, Int64}}:
+ x-z
+ -y+2z²
+ 4z⁴+2z²-1
+
+julia> grobner_basis(F;lt=grlex)
+3-element Vector{Mvp{Int64, Int64}}:
+ x-z
+ y²+y-1
+ -y+2z²
+
+julia> grobner_basis(F;lt=grevlex)
+3-element Vector{Mvp{Int64, Int64}}:
+ x-z
+ y²+y-1
+ 2x²-y
+```
+
+There is no keyword to change the ordering of the variables. We suggest to use `rename_variables` for this purpose.
+
+
+<a target='_blank' href='https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/03af83087258afd4fb6f4efb9f81ed7f5ac0ba8f/src/PuiseuxPolynomials.jl#L1337-L1371' class='documenter-source'>source</a><br>
+
+<a id='PuiseuxPolynomials.rename_variables' href='#PuiseuxPolynomials.rename_variables'>#</a>
+**`PuiseuxPolynomials.rename_variables`** &mdash; *Function*.
+
+
+
+`rename_variables(p)` renames `variable(p)` to `:A,…,:Z,:a,…,:z`
+
+`rename_variables(p,v)` renames `variables(p)` to `v`
+
+`rename_variables(p,s,v)` renames the variables in `p` whose name is in `s` with the corresponding name in `v`
+
+```julia-repl
+julia> @Mvp x,y,z; p=x+y+z
+Mvp{Int64}: x+y+z
+
+julia> rename_variables(p)
+Mvp{Int64}: A+B+C
+
+julia> rename_variables(p,[:U,:V])
+Mvp{Int64}: U+V+z
+
+julia> rename_variables(p,[:x,:z],[:U,:V])
+Mvp{Int64}: U+V+y
+```
+
+
+<a target='_blank' href='https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/03af83087258afd4fb6f4efb9f81ed7f5ac0ba8f/src/PuiseuxPolynomials.jl#L1397-L1418' class='documenter-source'>source</a><br>
 

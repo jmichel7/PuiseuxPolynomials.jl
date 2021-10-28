@@ -15,6 +15,9 @@ coefficient
 monomials
 powers
 Base.isless(::Monomial,::Monomial)
+lex
+grlex
+grevlex
 Base.pairs(::Mvp)
 Pol(x::Mvp{T, N} where N) where T
 Pol(p::Mvp{T, N}, var::Symbol) where {T, N}
@@ -27,4 +30,6 @@ lcm(::Mvp,::Mvp)
 scalar
 Base.:^(::Mvp, ::AbstractMatrix)
 LaurentPolynomials.Frac(::T) where T<:Mvp
+grobner_basis
+rename_variables
 ```

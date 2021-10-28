@@ -109,5 +109,13 @@ end
 @test mytest("PuiseuxPolynomials.jl","gcd(x^2-y^2,(x+y)^2)","Mvp{Int64}: -x-y")
 @test mytest("PuiseuxPolynomials.jl","laurent_denominator(x^-1,y^-2+x^4)","Monomial{Int64}:xy²")
 @test mytest("PuiseuxPolynomials.jl","lcm(x^2-y^2,(x+y)^2)","Mvp{Int64}: -x³-x²y+xy²+y³")
+@test mytest("PuiseuxPolynomials.jl","@Mvp x,y,z; F=[x^2+y^2+z^2-1,x^2-y+z^2,x-z]","3-element Vector{Mvp{Int64, Int64}}:\n x²+y²+z²-1\n x²-y+z²\n x-z")
+@test mytest("PuiseuxPolynomials.jl","grobner_basis(F)","3-element Vector{Mvp{Int64, Int64}}:\n x-z\n -y+2z²\n 4z⁴+2z²-1")
+@test mytest("PuiseuxPolynomials.jl","grobner_basis(F;lt=grlex)","3-element Vector{Mvp{Int64, Int64}}:\n x-z\n y²+y-1\n -y+2z²")
+@test mytest("PuiseuxPolynomials.jl","grobner_basis(F;lt=grevlex)","3-element Vector{Mvp{Int64, Int64}}:\n x-z\n y²+y-1\n 2x²-y")
+@test mytest("PuiseuxPolynomials.jl","@Mvp x,y,z; p=x+y+z","Mvp{Int64}: x+y+z")
+@test mytest("PuiseuxPolynomials.jl","rename_variables(p)","Mvp{Int64}: A+B+C")
+@test mytest("PuiseuxPolynomials.jl","rename_variables(p,[:U,:V])","Mvp{Int64}: U+V+z")
+@test mytest("PuiseuxPolynomials.jl","rename_variables(p,[:x,:z],[:U,:V])","Mvp{Int64}: U+V+y")
 end
 end

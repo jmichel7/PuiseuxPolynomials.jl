@@ -137,8 +137,9 @@ julia> valuation(p),valuation(p,:x),valuation(p,:y)
 
 Terms  are totally ordered in an `Mvp`  by a monomial ordering (that is, an
 ordering  on  monomials  so  that  `x<y`  implies `xz<yz` for any monomials
-`x,y,z`).  By default, the ordering is `lexless`. The ordering `deglexless`
-is also implemented.
+`x,y,z`).  By default, the  ordering is `lex`.  The terms are in decreasing
+order,  so that the  first term is  the highest. The  orderings `grlex` and
+`grevlex` are also implemented.
 
 An  `Mvp` is a *scalar*  if the valuation and  degree are `0`. The function
 `scalar`  returns the  constant coefficient  if the  `Mvp` is a scalar, and
@@ -271,7 +272,8 @@ module PuiseuxPolynomials
 using ModuleElts
 using LaurentPolynomials
 export coefficient, monomials, powers
-export Mvp, Monomial, @Mvp, variables, value, laurent_denominator, term
+export Mvp, Monomial, @Mvp, variables, value, laurent_denominator, term,
+       lex, grlex, grevlex, grobner_basis, rename_variables
 #------------------ Monomials ---------------------------------------------
 struct Monomial{T} # T is Int or Rational{Int}
   d::ModuleElt{Symbol,T}   
@@ -304,6 +306,7 @@ Base.length(a::Monomial)=length(a.d)
 variables(a::Monomial)=keys(a.d)
 "`powers(a::Monomial)` iterator on the powers of variables in `a`"
 powers(a::Monomial)=values(a.d)
+ispositive(a::Monomial)=all(>=(0),powers(a))
 
 const unicodeFrac=Dict((1,2)=>'½',(1,3)=>'⅓',(2,3)=>'⅔',
   (1,4)=>'¼',(3,4)=>'¾',(1,5)=>'⅕',(2,5)=>'⅖',(3,5)=>'⅗',
@@ -364,11 +367,11 @@ function Base.show(io::IO, ::MIME"text/plain", m::Monomial)
 end
 
 """
-`lexless(a::Monomial, b::Monomial)`
+`lex(a::Monomial, b::Monomial)`
 The  "lex" ordering,  where `a<b`  if the  first variable  in `a/b`
 occurs to a positive power.
 """
-function lexless(a::Monomial, b::Monomial)
+function lex(a::Monomial, b::Monomial)
   for ((va,pa),(vb,pb)) in zip(a.d,b.d)
     if va!=vb return va<vb ? pa>0 : pb<0 end
     if pa!=pb return isless(pb,pa) end
@@ -379,14 +382,26 @@ function lexless(a::Monomial, b::Monomial)
 end
 
 """
-`deglexless(a::Monomial, b::Monomial)`
-The "deglex" ordering, where `a<b̀` if `degree(a)<degree(b)` or the degrees
-are equal but `lexless(a,b)`.
+`grlex(a::Monomial, b::Monomial)`
+The "grlex" ordering, where `a<b̀` if `degree(a)>degree(b)` or the degrees
+are equal but `lex(a,b)`.
 """
-function deglexless(a::Monomial, b::Monomial)
+function grlex(a::Monomial, b::Monomial)
   da=degree(a);db=degree(b)
-  if da!=db return isless(da,db) end
-  lexless(a,b)
+  if da!=db return isless(db,da) end
+  lex(a,b)
+end
+
+"""
+`grevlex(a::Monomial, b::Monomial)`
+The "grevlex" ordering, where `a<b̀` if `degree(a)>degree(b)` or the degrees
+are equal but the las variable in ``a/b`` occurs to a negative power
+"""
+function grevlex(a::Monomial, b::Monomial)
+  da=degree(a);db=degree(b)
+  if da!=db return isless(db,da) end
+  lex(Monomial(ModuleElt(reverse(b.d.d))),
+      Monomial(ModuleElt(reverse(a.d.d))))
 end
 
 """
@@ -396,7 +411,7 @@ For  our implementation of `Mvp`s to  work, `isless` must define a monomial
 order (that is, for monomials `m,a,b` we have `a<b => a*m<b*m`). By default
 we  use the  "lex" ordering.
 """
-@inline Base.isless(a::Monomial, b::Monomial)=lexless(a,b)
+@inline Base.isless(a::Monomial, b::Monomial)=lex(a,b)
 
 Base.:(==)(a::Monomial, b::Monomial)=a.d==b.d
 
@@ -992,7 +1007,7 @@ Base.:^(p::Mvp,m::AbstractMatrix;vars=variables(p))=
   p(;map(Pair,vars,permutedims(Mvp.(vars))*m)...)
 
 LaurentPolynomials.positive_part(p::Mvp)=
-  Mvp(ModuleElt(m=>c for (m,c) in pairs(p) if all(>(0),powers(m));check=false))
+  Mvp(ModuleElt(m=>c for (m,c) in pairs(p) if ispositive(m);check=false))
 
 LaurentPolynomials.negative_part(p::Mvp)=
   Mvp(ModuleElt(m=>c for (m,c) in pairs(p) if all(<(0),powers(m));check=false))
@@ -1243,6 +1258,174 @@ value(p::Frac{<:Mvp},k::Pair...;Rational=false)=Rational ?
 
 (p::Frac{<:Mvp})(;arg...)=value(p,arg...)
 
+#--------------------  Grobner bases -------------------------------------
+# the reference is Cox, Little, O'Shea chapter 2
+
+# minimum term and its index for monomial order lt
+# findmin does not have the keywords lt and by so I must spin my own
+function fmin(l;lt=lex,by=first) 
+  res=(first(l),1)
+  for i in 2:length(l)
+   if lt(by(l[i]),by(first(res))) res=(l[i],i) end
+  end
+  res
+end
+
+# Leading term for monomial order lt
+LT(p;lt=lex)=lt==lex ? first(pairs(p)) : fmin(pairs(p);lt)[1]
+
+# drop from p leading term for monomial order lt
+function dropLT(p;lt=lex)
+  if lt==lex return Mvp(ModuleElt(pairs(p)[2:end];check=false)) end
+  Mvp(ModuleElt(deleteat!(pairs(p),fmin(pairs(p);lt)[2]);check=false))
+end
+
+# quotient of leading terms
+function quotientLT(p,q;lt=lex)
+  pm,pc=LT(p;lt)
+  qm,qc=LT(q;lt)
+  t=pm/qm
+  if ispositive(t) Mvp(t=>pc//qc) end
+end
+
+# remainder on division of p by list F
+# Cox-Little-O'Shea Th. 3 §3 chap.2
+function remainder(p,F;lt=lex)
+  q=zero(F)//1
+  r=zero(p)
+  while !iszero(p)
+    gotquotient=false
+    for i in eachindex(F)
+      t=quotientLT(p,F[i];lt)
+      if t!==nothing 
+        q[i]+=t
+#       xprintln("p=",p," F[i]=",F[i]," t=",t)
+        p-=t*F[i]
+        gotquotient=true
+        break
+      end
+    end
+    if !gotquotient
+      r+=Mvp(LT(p;lt))
+      p=dropLT(p;lt)
+    end
+  end
+  (q,r)
+end
+
+# Cox-Little-O'Shea def. 4.(ii) §6 chap.2
+function S_polynomial(p,q;lt=lex)
+  pm,pc=LT(p;lt)
+  qm,qc=LT(q;lt)
+  c=lcm(pm,qm)
+  (c/pm)*p//pc-(c/qm)*q//qc
+end
+  
+function reduce_basis(F;lt=lex)
+# F=sort(F,by=length)
+  F=copy(F)
+  i=1
+  while i<=length(F)
+    if any(j->j!=i && quotientLT(F[i],F[j];lt)!==nothing,eachindex(F)) 
+      deleteat!(F,i)
+    else i+=1
+    end
+  end
+  F
+end
+
+"""
+`grobner_basis(F;lt=lex)`
+
+computes  a Gröbner basis  of the polynomial  ideal generated by the `Mvp`s
+given  by the vector `F`. The  keyword `lt` describes the monomial ordering
+to use.
+```julia-repl
+julia> @Mvp x,y,z; F=[x^2+y^2+z^2-1,x^2-y+z^2,x-z]
+3-element Vector{Mvp{Int64, Int64}}:
+ x²+y²+z²-1
+ x²-y+z²
+ x-z
+
+julia> grobner_basis(F)
+3-element Vector{Mvp{Int64, Int64}}:
+ x-z
+ -y+2z²
+ 4z⁴+2z²-1
+
+julia> grobner_basis(F;lt=grlex)
+3-element Vector{Mvp{Int64, Int64}}:
+ x-z
+ y²+y-1
+ -y+2z²
+
+julia> grobner_basis(F;lt=grevlex)
+3-element Vector{Mvp{Int64, Int64}}:
+ x-z
+ y²+y-1
+ 2x²-y
+```
+
+There is no keyword to change the ordering of the variables. We suggest
+to use `rename_variables` for this purpose.
+"""
+function grobner_basis(F;lt=lex)
+# Cox-Little-O'Shea Th. 9 §10 chap.2
+  F=copy(F)
+  B=[(i,j) for j in 1:length(F) for i in 1:j-1]
+  t=length(F)
+  while !isempty(B)
+    i,j=popfirst!(B)
+    li,_=LT(F[i];lt)
+    lj,_=LT(F[j];lt)
+    lij=lcm(li,lj)
+    if lij==li*lj continue end
+    ll=filter(l->l!=i && l!=j && !((i,l) in B) && !((j,l) in B)
+               && !((l,i) in B) && !((l,j) in B),1:length(F))
+    if any(l->ispositive(lij/first(LT(F[l];lt))),ll) continue end
+    s=S_polynomial(F[i],F[j];lt)
+    r=remainder(s,F;lt)[2]
+    if !iszero(r) 
+      t+=1
+      push!(F,r)
+      append!(B,tuple.(1:t-1,t))
+    end
+  end
+  reduce_basis(F;lt)
+end
+
+"""
+`rename_variables(p)` renames `variable(p)` to `:A,…,:Z,:a,…,:z`
+
+`rename_variables(p,v)` renames `variables(p)` to `v`
+
+`rename_variables(p,s,v)` renames the variables in `p` whose name is in
+`s` with the corresponding name in `v`
+
+```julia-repl
+julia> @Mvp x,y,z; p=x+y+z
+Mvp{Int64}: x+y+z
+
+julia> rename_variables(p)
+Mvp{Int64}: A+B+C
+
+julia> rename_variables(p,[:U,:V])
+Mvp{Int64}: U+V+z
+
+julia> rename_variables(p,[:x,:z],[:U,:V])
+Mvp{Int64}: U+V+y
+```
+"""
+function rename_variables(p,s,l)
+  d=Dict(zip(s,l))
+  Mvp(ModuleElt(map(pairs(p)) do (m,c)
+    Monomial(ModuleElt(map(((v,i),)->(haskey(d,v) ? d[v] : v)=>i,m.d.d)))=>c
+  end))
+end
+
+rename_variables(p)=rename_variables(p,Symbol.(vcat('A':'Z','a':'z')))
+rename_variables(p,l)=rename_variables(p,variables(p),l)
+#--------------------  benchmarks -------------------------------------
 #julia1.6.3> @btime PuiseuxPolynomials.fateman(15)
 # 4.040 s (15219390 allocations: 5.10 GiB)
 function fateman(n)
