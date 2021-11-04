@@ -1,7 +1,7 @@
 name = "PuiseuxPolynomials"
 uuid = "f53aee1f-40be-4d16-bc74-7d339eee78ec"
 authors = ["Jean Michel <jean.michel@imj-prg.fr>"]
-version = "0.0.4"
+version = "0.0.5"
 [compat]
 julia = "1"
 ModuleElts = "< 1.0.0"

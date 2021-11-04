@@ -19,7 +19,7 @@ This  package, which  depends only  on the  packages `LaurentPolynomials` and `M
 
 Some  functions described below work  only with polynomials where variables are  raised to integral powers;  we will refer to  such objects as "Laurent polynomials"; some functions require further that variables are raised only to  positive powers: we refer then to "true polynomials" (the numerator and denominator of `Frac{Mvp{T,Int}}` are true polynomials).
 
-Puiseux  polynomials have the  parametric type `Mvp{M,C}`  where `M` is the type   of   the   monomials   (`Monomial{Int}`   for  Laurent  polynomials; `Monomial{Rational{Int}}`  for more general Puisuex polynomials) and `C` is the type of the coefficients.
+Puiseux  polynomials have the  parametric type `Mvp{M,C}`  where `M` is the type   of   the   monomials   (`Monomial{Int}`   for  Laurent  polynomials; `Monomial{Rational{Int}}`  for more general Puiseux polynomials) and `C` is the type of the coefficients.
 
 We first look at how to make Puiseux polynomials.
 
@@ -42,7 +42,7 @@ Mvp{Int64,Rational{Int64}}: x½
 
 `Mvp(x::Number)`  returns the multivariate polynomial  with only a constant term, equal to `x`.
 
-It  is convenient to create `Mvp`s using  variables such as `x,y` above. To create  them more  directly, `Monomial(:x=>1,:y=>-2)`  creates the monomial `xy⁻²`, and then `Mvp(Monomial(:x=>1,:y=>-2)=>3,Monomial()=>4)` creates the `Mvp`  `3xy⁻²+4`. This is the way `Mvp` are printed in another context than the repl, IJulia or Pluto where they display nicely as show as above.
+It  is convenient to create `Mvp`s using  variables such as `x,y` above. To create  them more  directly, `Monomial(:x=>1,:y=>-2)`  creates the monomial `xy⁻²`, and then `Mvp(Monomial(:x=>1,:y=>-2)=>3,Monomial()=>4)` creates the `Mvp`  `3xy⁻²+4`. This is the way `Mvp` are printed in another context than the repl, IJulia or Pluto where they display nicely as shown above.
 
 ```julia-rep1
 julia> print(3x*y^-2+4)
@@ -121,7 +121,7 @@ julia> valuation(p),valuation(p,:x),valuation(p,:y)
 (-1, 0, -2)
 ```
 
-Terms  are totally ordered in an `Mvp`  by a monomial ordering (that is, an ordering  on  monomials  so  that  `x<y`  implies `xz<yz` for any monomials `x,y,z`).  By default, the  ordering is `lex`.  The terms are in decreasing order,  so that the  first term is  the highest. The  orderings `grlex` and `grevlex` are also implemented.
+Terms  are totally ordered in an `Mvp`  by a monomial ordering (that is, an ordering  on  monomials  so  that  `x<y`  implies `xz<yz` for any monomials `x,y,z`).  By default, the  ordering is `lex`.  The terms are in decreasing order,  so that the  first term is  the highest. The  orderings `grlex` and `grevlex` are also implemented (see `grobner_basis` for how to use them).
 
 An  `Mvp` is a *scalar*  if the valuation and  degree are `0`. The function `scalar`  returns the  constant coefficient  if the  `Mvp` is a scalar, and `nothing` otherwise.
 

@@ -16,7 +16,7 @@ denominator of `Frac{Mvp{T,Int}}` are true polynomials).
 
 Puiseux  polynomials have the  parametric type `Mvp{M,C}`  where `M` is the
 type   of   the   monomials   (`Monomial{Int}`   for  Laurent  polynomials;
-`Monomial{Rational{Int}}`  for more general Puisuex polynomials) and `C` is
+`Monomial{Rational{Int}}`  for more general Puiseux polynomials) and `C` is
 the type of the coefficients.
 
 We first look at how to make Puiseux polynomials.
@@ -47,7 +47,7 @@ It  is convenient to create `Mvp`s using  variables such as `x,y` above. To
 create  them more  directly, `Monomial(:x=>1,:y=>-2)`  creates the monomial
 `xy⁻²`, and then `Mvp(Monomial(:x=>1,:y=>-2)=>3,Monomial()=>4)` creates the
 `Mvp`  `3xy⁻²+4`. This is the way `Mvp` are printed in another context than
-the repl, IJulia or Pluto where they display nicely as show as above.
+the repl, IJulia or Pluto where they display nicely as shown above.
 
 ```julia-rep1
 julia> print(3x*y^-2+4)
@@ -139,7 +139,7 @@ Terms  are totally ordered in an `Mvp`  by a monomial ordering (that is, an
 ordering  on  monomials  so  that  `x<y`  implies `xz<yz` for any monomials
 `x,y,z`).  By default, the  ordering is `lex`.  The terms are in decreasing
 order,  so that the  first term is  the highest. The  orderings `grlex` and
-`grevlex` are also implemented.
+`grevlex` are also implemented (see `grobner_basis` for how to use them).
 
 An  `Mvp` is a *scalar*  if the valuation and  degree are `0`. The function
 `scalar`  returns the  constant coefficient  if the  `Mvp` is a scalar, and
@@ -362,7 +362,10 @@ function Base.show(io::IO,m::Monomial)
 end
 
 function Base.show(io::IO, ::MIME"text/plain", m::Monomial)
-  if !haskey(io,:typeinfo) print(io,typeof(m),":") end
+  if !haskey(io,:typeinfo) 
+    print(io,typeof(m),":") 
+    io=IOContext(io,:typeinfo=>typeof(m))
+  end
   show(io,m)
 end
 
@@ -469,7 +472,10 @@ function Base.show(io::IO, ::MIME"text/html", a::Mvp)
 end
 
 function Base.show(io::IO, ::MIME"text/plain", a::Mvp{T,N}) where{T,N}
-  if !haskey(io,:typeinfo) print(io,N==Int ? "Mvp{$T}" : "Mvp{$T,$N}",": ") end
+  if !haskey(io,:typeinfo) 
+    print(io,N==Int ? "Mvp{$T}" : "Mvp{$T,$N}",": ")
+    io=IOContext(io,:typeinfo=>typeof(a))
+  end
   show(io,a)
 end
 
@@ -971,13 +977,13 @@ end
 
 (p::Mvp)(;arg...)=value(p,arg...)
 
-function LaurentPolynomials.root(a::Int,n::Int=2)
+function LaurentPolynomials.root(a::Integer,n=2)
   if n!=2 return end
   r=isqrt(a)
   if r^2==a return r end
 end
 
-function LaurentPolynomials.root(p::Mvp,n::Real=2)
+function LaurentPolynomials.root(p::Mvp,n=2)
   if iszero(p) return p end
   n=Int(n)
   if !ismonomial(p)
