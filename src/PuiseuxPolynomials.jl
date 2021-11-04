@@ -1061,7 +1061,7 @@ function LaurentPolynomials.exactdiv(p::Mvp,q::Mvp)
   elseif ismonomial(q)
     m,c=term(q,1)
     return Mvp(ModuleElt(inv(m)*m1=>exactdiv(c1,c) for (m1,c1) in pairs(p);check=false))
-  elseif ismonomial(p) return nothing
+   elseif ismonomial(p) error(q," does not exactly divide ",p)
   end 
   var=first(variables(first(monomials(p))))
   res=zero(p)
@@ -1071,7 +1071,6 @@ function LaurentPolynomials.exactdiv(p::Mvp,q::Mvp)
 #   if length(p)<length(q) return nothing end
     mp=degree(p,var)
     t=exactdiv(coefficient(p,var,mp),cq)
-    if t===nothing return nothing end
     if mp!=mq t=Monomial(ModuleElt(var=>mp-mq))*t end
     res+=t
     p-=t*q
