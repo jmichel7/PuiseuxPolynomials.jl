@@ -5,7 +5,7 @@ version = "0.0.4"
 [compat]
 julia = "1"
 ModuleElts = "0.0.2, 0.0.3"
-LaurentPolynomials = "0.0.4, 0.0.5"
+LaurentPolynomials = "0.0.2, 0.0.3, 0.0.4, 0.0.5"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
