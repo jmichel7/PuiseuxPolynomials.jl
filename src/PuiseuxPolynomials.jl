@@ -1290,13 +1290,13 @@ function quotientLT(p,q;lt=lex)
   pm,pc=LT(p;lt)
   qm,qc=LT(q;lt)
   t=pm/qm
-  if ispositive(t) Mvp(t=>pc//qc) end
+  if ispositive(t) Mvp(t=>exactdiv(pc,qc)) end
 end
 
 # remainder on division of p by list F
 # Cox-Little-O'Shea Th. 3 §3 chap.2
 function remainder(p,F;lt=lex)
-  q=zero(F)//1
+  q=zero(F)
   r=zero(p)
   while !iszero(p)
     gotquotient=false
@@ -1323,7 +1323,7 @@ function S_polynomial(p,q;lt=lex)
   pm,pc=LT(p;lt)
   qm,qc=LT(q;lt)
   c=lcm(pm,qm)
-  (c/pm)*p//pc-(c/qm)*q//qc
+  (c/pm)*exactdiv(p,pc)-(c/qm)*exactdiv(q,qc)
 end
   
 function reduce_basis(F;lt=lex)
@@ -1421,15 +1421,15 @@ julia> rename_variables(p,[:x,:z],[:U,:V])
 Mvp{Int64}: U+V+y
 ```
 """
-function rename_variables(p,s,l)
+function rename_variables(p::Mvp,s,l)
   d=Dict(zip(s,l))
   Mvp(ModuleElt(map(pairs(p)) do (m,c)
     Monomial(ModuleElt(map(((v,i),)->(haskey(d,v) ? d[v] : v)=>i,m.d.d)))=>c
   end))
 end
 
-rename_variables(p)=rename_variables(p,Symbol.(vcat('A':'Z','a':'z')))
-rename_variables(p,l)=rename_variables(p,variables(p),l)
+rename_variables(p::Mvp)=rename_variables(p,Symbol.(vcat('A':'Z','a':'z')))
+rename_variables(p::Mvp,l)=rename_variables(p,variables(p),l)
 #--------------------  benchmarks -------------------------------------
 #julia1.6.3> @btime PuiseuxPolynomials.fateman(15)
 # 4.040 s (15219390 allocations: 5.10 GiB)
