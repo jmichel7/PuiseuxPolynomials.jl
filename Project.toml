@@ -1,11 +1,11 @@
 name = "PuiseuxPolynomials"
 uuid = "f53aee1f-40be-4d16-bc74-7d339eee78ec"
 authors = ["Jean Michel <jean.michel@imj-prg.fr>"]
-version = "0.0.4"
+version = "0.0.5"
 [compat]
 julia = "1"
-ModuleElts = "0.0.2, 0.0.3"
-LaurentPolynomials = "0.0.2, 0.0.3, 0.0.4, 0.0.5"
+ModuleElts = "0.0.3, 0.0.4"
+LaurentPolynomials = "0.0.4, 0.0.5, 0.0.6"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
