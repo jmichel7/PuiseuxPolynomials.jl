@@ -1,11 +1,11 @@
 """
-This  package, which  depends only  on the  packages `LaurentPolynomials` and `ModuleElts`,
-implements  Puiseux polynomials, that is linear combinations of monomials
-of  the  type  `x₁^{a₁}…  xₙ^{aₙ}`  where  `xᵢ`  are variables and `aᵢ` are
-exponents   which  can  be  arbitrary  rational  numbers  (we  use  Puiseux
-polynomials with cyclotomic coefficients as  splitting fields of cyclotomic
+This  package, which depends only  on the packages `LaurentPolynomials` and
+`ModuleElts`,  implements Puiseux polynomials,  that is linear combinations
+of  monomials of the  type `x₁^{a₁}… xₙ^{aₙ}`  where `xᵢ` are variables and
+`aᵢ`  are exponents which can be arbitrary rational numbers (we use Puiseux
+polynomials  with cyclotomic coefficients as splitting fields of cyclotomic
 Hecke  algebras), and also implements multivariate rational fractions (type
-`Frac{Mvp{T,Int}}`). But I hope it is a good package for ordinary
+`Frac{Mvp{T,Int}}`).  But  I  hope  it  is  a  good  package  for  ordinary
 multivariate polynomials if you are only interested in that.
 
 Some  functions described below work  only with polynomials where variables
@@ -720,7 +720,7 @@ function LaurentPolynomials.coefficients(p::Mvp{T,N},v::Symbol)where {T,N}
       if v1==v 
         found=true
         d[deg]=push!(get!(d,deg,empty(p.d.d)),
-                     Monomial(ModuleElt(deleteat!(copy(m.d.d),i)))=>c)
+                Monomial(ModuleElt(deleteat!(copy(m.d.d),i);check=false))=>c)
       end
     end
     if !found  d[0]=push!(get!(d,0,empty(p.d.d)),m=>c) end
@@ -961,7 +961,7 @@ function value(p::Mvp,k::Pair...)
       push!(badj,j)
     end
     if badj!==nothing
-      res*=Monomial(ModuleElt(deleteat!(copy(m.d.d),badj)))
+      res*=Monomial(ModuleElt(deleteat!(copy(m.d.d),badj);check=false))
       badj=nothing
       if badi===nothing res1=res
         badi=Int[]
