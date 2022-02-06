@@ -516,6 +516,7 @@ Mvp(x::Number)=convert(Mvp,x)
 Mvp(x::Mvp)=x
 # stupid stuff to make LU work
 Base.adjoint(a::Mvp)=conj(a)
+Base.transpose(a::Mvp)=a
 Base.abs(a::Mvp)=a
 
 Base.:(==)(a::Mvp, b::Mvp)=a.d==b.d
