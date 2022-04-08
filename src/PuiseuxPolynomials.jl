@@ -14,10 +14,10 @@ polynomials"; some functions require further that variables are raised only
 to  positive powers: we refer then to "true polynomials" (the numerator and
 denominator of `Frac{Mvp{T,Int}}` are true polynomials).
 
-Puiseux  polynomials have the  parametric type `Mvp{M,C}`  where `M` is the
-type   of   the   monomials   (`Monomial{Int}`   for  Laurent  polynomials;
-`Monomial{Rational{Int}}`  for more general Puiseux polynomials) and `C` is
-the type of the coefficients.
+Puiseux  polynomials have the  parametric type `Mvp{C,E}`  where `C` is the
+type  of the coefficients and  `E` is the type  of the exponents (`Int` for
+Laurent polynomials; `Rational{Int}` for more general Puiseux polynomials).
+When printing only `C` is printed if `E==Int`.
 
 We first look at how to make Puiseux polynomials.
 
@@ -103,6 +103,11 @@ julia> term(p,2)
 julia> length(p) # the number of terms
 2
 
+julia> term.(p,1:length(p))
+2-element Vector{Pair{Monomial{Int64}, Int64}}:
+ xy⁻² => 3
+      => 4
+
 julia> m=first(term(p,1))
 Monomial{Int64}:xy⁻²
 
@@ -114,6 +119,11 @@ julia> m[:x] # power of x in m
 
 julia> m[:y] # power of y in m
 -2
+
+julia> map((x,y)->x=>y,variables(m),powers(m))
+2-element Vector{Pair{Symbol, Int64}}:
+ :x => 1
+ :y => -2
 ```
 
 The valuation and degree of an Mvp can be inspected globally or variable by
@@ -162,6 +172,15 @@ Mvp{Float64}: 1.5xy⁻²+2.0
 julia> p//2
 Mvp{Rational{Int64}}: (3//2)xy⁻²+2//1
 ```
+
+When  converting an `Mvp` one needs to specify the two type parameters (the
+type of the coefficients and the type of the exponents).
+
+```julia-repl
+julia> Mvp{Float64,Rational{Int}}(p)
+Mvp{Float64,Rational{Int64}}: 3.0xy⁻²+4.0
+```
+
 One can evaluate an `Mvp` when setting the value of some variables by using
 the  function call syntax (actually, the keyword syntax for the object used
 as a function)
@@ -263,12 +282,46 @@ Finally,   `Mvp`s  have   methods  `conj`,   `adjoint`  which   operate  on
 coefficients,   a  `derivative`   methods,  and   methods  `positive_part`,
 `negative_part` and `bar` (useful for Kazhdan-Lusztig theory).
 
+```julia_repl
+julia> @Mvp z
+Mvp{Int64}: z
+
+julia> hessian(p,vars)=[derivative(derivative(p,x),y) for x in vars, y in vars]
+hessian (generic function with 1 method)
+
+julia> hessian(x^2*y^2*z^2,[:x,:y,:z])
+3×3 Matrix{Mvp{Int64, Int64}}:
+ 2y²z²  4xyz²  4xy²z
+ 4xyz²  2x²z²  4x²yz
+ 4xy²z  4x²yz  2x²y²
+
+julia> jacobian(pols,vars)=[derivative(p,v) for p in pols, v in vars]
+jacobian (generic function with 1 method)
+
+julia> jacobian([x,y,z],[:x,:y,:z])
+3×3 Matrix{Mvp{Int64, Int64}}:
+ 1  0  0
+ 0  1  0
+ 0  0  1
+
+julia> p=(x+y^-1)^4
+Mvp{Int64}: x⁴+4x³y⁻¹+6x²y⁻²+4xy⁻³+y⁻⁴
+
+julia> positive_part(p)
+Mvp{Int64}: x⁴
+
+julia> negative_part(p)
+Mvp{Int64}: y⁻⁴
+
+julia> bar(p)
+Mvp{Int64}: y⁴+4x⁻¹y³+6x⁻²y²+4x⁻³y+x⁻⁴
+```
+
 Despite  the degree of generality of our  polynomials, the speed is not too
-shabby. For the Fateman test f(f+1) where f=(1+x+y+z+t)^15, we take 4sec.
+shabby. For the Fateman test f(f+1) where f=(1+x+y+z+t)^15, we take 3sec.
 According to the Nemo paper, Sagemath takes 10sec and Nemo takes 1.6sec.
 """
 module PuiseuxPolynomials
-# benchmark: (x+y+z)^3     2.3μs 48 alloc
 using ModuleElts
 using LaurentPolynomials
 export coefficient, monomials, powers
@@ -303,6 +356,7 @@ Base.://(a::Monomial, b::Monomial)=a*inv(b)
 Base.:^(x::Monomial,p)=Monomial(x.d*p)
 Base.getindex(a::Monomial,k)=getindex(a.d,k)
 Base.length(a::Monomial)=length(a.d)
+"`variables(a::Monomial)` iterator on the variables of `a` (a sorted list of `Symbol`s)"
 variables(a::Monomial)=keys(a.d)
 "`powers(a::Monomial)` iterator on the powers of variables in `a`"
 powers(a::Monomial)=values(a.d)
@@ -531,8 +585,7 @@ function Base.convert(::Type{T},a::Mvp) where T<:Number
 end
 (::Type{T})(a::Mvp) where T<: Number=convert(T,a)
 
-Base.isinteger(p::Mvp)=iszero(p) || (ismonomial(p) &&
-                          isone(first(term(x,1))) && isinteger(last(term(x,1))))
+Base.isinteger(p::Mvp)=scalar(p)!==nothing && isinteger(scalar(p))
 
 # we need a promote rule to handle Vectors of Mvps of different types
 Base.promote_rule(::Type{Mvp{T1,N1}},::Type{Mvp{T2,N2}}) where {T1,T2,N1,N2} =
@@ -589,7 +642,7 @@ function Base.:^(x::Mvp, p::Union{Integer,Rational})
   if isinteger(p) p=Int(p) end
   if iszero(p) return one(x)
   elseif iszero(x) || isone(p) return x
-  elseif !(p isa Int) return root(x,denominator(p))^numerator(p) 
+  elseif p isa Rational return root(x,denominator(p))^numerator(p) 
   elseif ismonomial(x) 
     (m,c)=term(x,1);return isone(c) ? Mvp(m^p=>c;check=false) : Mvp(m^p=>c^p;check=false)
   elseif p>=0 return Base.power_by_squaring(x,p) 
@@ -836,9 +889,11 @@ Base.convert(::Type{Mvp},p::Pol)=p(Mvp(LaurentPolynomials.varname[]))
 
 """
 `variables(p::Mvp)`
+
 `variables(v::Array{Mvp})`
 
-returns the list of variables of all `p` as a sorted list of `Symbol`s.
+returns  the list of  variables of `p`  (resp. all `p`  in `v`) as a sorted
+list of `Symbol`s.
 
 ```julia-repl
 julia> @Mvp x,y,z
@@ -1401,37 +1456,38 @@ function grobner_basis(F;lt=lex)
 end
 
 """
-`rename_variables(p)` renames `variable(p)` to `:A,…,:Z,:a,…,:z`
-
 `rename_variables(p,v)` renames `variables(p)` to `v`
 
-`rename_variables(p,s,v)` renames the variables in `p` whose name is in
-`s` with the corresponding name in `v`
+`rename_variables(p,l::Pair{Symbol,Symbol}...)` renames the 
+variables in `p` as indicated by the pairs in `l`.
 
 ```julia-repl
 julia> @Mvp x,y,z; p=x+y+z
 Mvp{Int64}: x+y+z
 
-julia> rename_variables(p)
+julia> rename_variables(p,Symbol.('A':'Z'))
 Mvp{Int64}: A+B+C
 
 julia> rename_variables(p,[:U,:V])
 Mvp{Int64}: U+V+z
 
-julia> rename_variables(p,[:x,:z],[:U,:V])
+julia> rename_variables(p,:x=>:U,:z=>:V) # faster than p(;x=Mvp(:U),z=Mvp(:V))
 Mvp{Int64}: U+V+y
 ```
 """
-function rename_variables(p::Mvp,s,l)
-  d=Dict(zip(s,l))
+function rename_variables(p::Mvp,l::Pair{Symbol,Symbol}...)
+  d=Dict(l)
   Mvp(ModuleElt(map(pairs(p)) do (m,c)
     Monomial(ModuleElt(map(((v,i),)->(haskey(d,v) ? d[v] : v)=>i,m.d.d)))=>c
   end))
 end
 
-rename_variables(p::Mvp)=rename_variables(p,Symbol.(vcat('A':'Z','a':'z')))
-rename_variables(p::Mvp,l)=rename_variables(p,variables(p),l)
+rename_variables(p::Mvp,l::AbstractVector{Symbol})=
+     rename_variables(p,map((x,y)->x=>y,variables(p),l)...)
 #--------------------  benchmarks -------------------------------------
+#julia> @btime (x+y+z)^3;
+#  2.292 μs (49 allocations: 5.42 KiB)
+
 #julia1.6.3> @btime PuiseuxPolynomials.fateman(15)
 # 4.040 s (15219390 allocations: 5.10 GiB)
 function fateman(n)
