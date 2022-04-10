@@ -2,22 +2,28 @@
 This  package, which depends only  on the packages `LaurentPolynomials` and
 `ModuleElts`,  implements Puiseux polynomials,  that is linear combinations
 of  monomials of the  type `x₁^{a₁}… xₙ^{aₙ}`  where `xᵢ` are variables and
-`aᵢ`  are exponents which can be arbitrary rational numbers (we use Puiseux
-polynomials  with cyclotomic coefficients as splitting fields of cyclotomic
-Hecke  algebras), and also implements multivariate rational fractions (type
-`Frac{Mvp{T,Int}}`).  But  I  hope  it  is  a  good  package  for  ordinary
-multivariate polynomials if you are only interested in that.
+`aᵢ`  are exponents which can be arbitrary rational numbers.
+
+Recall  that  on  an  algebraically  closed coefficient field, the quotient
+field  of the Puiseux polynomials is  the algebraic closure of the quotient
+field  of  the  multivariate  polynomials.  We use Puiseux polynomials with
+cyclotomic coefficients as splitting fields of cyclotomic Hecke algebras.
+
+This  package is in particular  a perfectly usable (and  quite good I hope)
+implementation   of  multivariate  polynomials  and  multivariate  rational
+fractions if you are only interested in that.
 
 Some  functions described below work  only with polynomials where variables
 are  raised to integral powers;  we will refer to  such objects as "Laurent
 polynomials"; some functions require further that variables are raised only
-to  positive powers: we refer then to "true polynomials" (the numerator and
-denominator of `Frac{Mvp{T,Int}}` are true polynomials).
+to  positive powers: we refer then to "true polynomials".
 
 Puiseux  polynomials have the  parametric type `Mvp{C,E}`  where `C` is the
-type  of the coefficients and  `E` is the type  of the exponents (`Int` for
-Laurent polynomials; `Rational{Int}` for more general Puiseux polynomials).
-When printing only `C` is printed if `E==Int`.
+type  of the coefficients and `E` is the type of the exponents (`E=Int` for
+Laurent   polynomials;   `E=Rational{Int}`   for   more   general   Puiseux
+polynomials).  When printing only `C` is  printed if `E==Int`. The rational
+fractions  have type  `Frac{Mvp{C,Int}}`(and in  addition the numerator and
+denominator should be true polynomials).
 
 We first look at how to make Puiseux polynomials.
 
@@ -38,6 +44,9 @@ Mvp{Int64}: x+z
 
 julia> x^(1//2)
 Mvp{Int64,Rational{Int64}}: x½
+
+julia> Mvp(3)
+Mvp{Int64}: 3
 ```
 
 `Mvp(x::Number)`  returns the multivariate polynomial  with only a constant
@@ -47,20 +56,20 @@ It  is convenient to create `Mvp`s using  variables such as `x,y` above. To
 create  them more  directly, `Monomial(:x=>1,:y=>-2)`  creates the monomial
 `xy⁻²`, and then `Mvp(Monomial(:x=>1,:y=>-2)=>3,Monomial()=>4)` creates the
 `Mvp`  `3xy⁻²+4`. This is the way `Mvp` are printed in another context than
-the repl, IJulia or Pluto where they display nicely as shown above.
+the repl, IJulia or Pluto (where they display nicely as shown above).
 
 ```julia-rep1
 julia> print(3x*y^-2+4)
-Mvp(Monomial(:x,:y => -2) => 3,Monomial() => 4)
+Mvp(Monomial(:x,:y => -2) => 3,Monomial() => 4) # :x is shorthand for :x=>1
 
 julia> print(x^(1//2))
 Mvp(Monomial(:x => 1//2) => 1)
 ```
 
 Only  monomials and one-term `Mvp`s can  be raised to a non-integral power;
-the  `Mvp` with one  term `cm` which  is `c` times  the monomial `m` can be
-raised  to a fractional power of denominator `d` if and only if `root(c,d)`
-is  defined (this is  equivalent to `c^{1//d}` for floats);
+the  `Mvp` with one term constant `c`  times the monomial `m` can be raised
+to  a fractional  power of  denominator `d`  if and  only if `root(c,d)` is
+defined (this is equivalent to `c^{1//d}` for floats);
 
 ```julia-repl
 julia> (4x)^(1//2)
@@ -74,9 +83,9 @@ Mvp{Float64,Rational{Int64}}: 1.4142135623730951x½
 ```
 
 One  may  want  to  define  `root`  differently;  for instance, in my other
-package  `Cycs` I define  square roots of  rationals as cyclotomics; I also
-have  implemented  in  `Cycs`  arbitrary  roots  of  roots of unity). Using
-`Cycs`:
+package   `CylotomicNumbers`  I   define  square   roots  of  rationals  as
+cyclotomics;  I also have implemented in `CylotomicNumbers` arbitrary roots
+of roots of unity). Using `CylotomicNumbers`:
 
 ```julia-rep1
 julia> (2x)^(1//2)
@@ -103,12 +112,12 @@ julia> term(p,2)
 julia> length(p) # the number of terms
 2
 
-julia> term.(p,1:length(p))
+julia> term.(p,1:length(p)) # same as pairs(p)
 2-element Vector{Pair{Monomial{Int64}, Int64}}:
  xy⁻² => 3
       => 4
 
-julia> m=first(term(p,1))
+julia> m=first(term(p,1)) # same as first(monomials(p))
 Monomial{Int64}:xy⁻²
 
 julia> length(m) # how many variables in m
@@ -120,7 +129,7 @@ julia> m[:x] # power of x in m
 julia> m[:y] # power of y in m
 -2
 
-julia> map((x,y)->x=>y,variables(m),powers(m))
+julia> map((x,y)->x=>y,variables(m),powers(m)) # same as pairs(m)
 2-element Vector{Pair{Symbol, Int64}}:
  :x => 1
  :y => -2
@@ -183,16 +192,22 @@ Mvp{Float64,Rational{Int64}}: 3.0xy⁻²+4.0
 
 One can evaluate an `Mvp` when setting the value of some variables by using
 the  function call syntax (actually, the keyword syntax for the object used
-as a function)
+as a function). There is also a more explicit `value` function.
 
 ```julia-repl
 julia> p=x+y
 Mvp{Int64}: x+y
 
+julia> value(p,:x=>2)
+Mvp{Int64}: y+2
+
 julia> p(x=2)
 Mvp{Int64}: y+2
 
 julia> p(x=2,y=x)
+Mvp{Int64}: x+2
+
+julia> value(p,:x=>2,:y=>x)
 Mvp{Int64}: x+2
 ```
 
@@ -235,8 +250,8 @@ Raising  a non-monomial  Laurent polynomial  to a  negative power returns a
 rational   fraction.  Rational  fractions  are  normalized  such  that  the
 numerator  and denominators are true polynomials  prime to each other. They
 have  the  arithmetic  operations  `+`,  `-`  , `*`, `/`, `//`, `^`, `inv`,
-`one`,  `isone`, `zero`, `iszero` (which can  operate between an `Mvp` or a
-`Number` and a `Frac{<:Mvp}`).
+`one`,  `isone`, `zero`, `iszero` (these  operations can operate between an
+`Mvp` or a `Number` and a `Frac{<:Mvp}`).
 
 ```julia-repl
 julia> (x+1)^-2
@@ -260,8 +275,9 @@ julia> value((x+y)/(x-y),:x=>y+1;Rational=true) # use // for division
 Mvp{Int64}: 2y+1
 ```
 
-`Frac`  are dissected using `numerator` and `denominator`. They are scalars
-for broadcasting and can be sorted (have `cmp` and `isless` methods).
+`Frac`  can  be  dissected  using  `numerator`  and `denominator`. They are
+scalars  for  broadcasting  and  can  be  sorted  (have  `cmp` and `isless`
+methods).
 
 ```julia-repl
 julia> m=[x+y x-y;x+1 y+1]
@@ -279,7 +295,7 @@ Mvp{Int64}: x²-2xy-y²-2y
 ```
 
 Finally,   `Mvp`s  have   methods  `conj`,   `adjoint`  which   operate  on
-coefficients,   a  `derivative`   methods,  and   methods  `positive_part`,
+coefficients,   a   `derivative`   method,   and  methods  `positive_part`,
 `negative_part` and `bar` (useful for Kazhdan-Lusztig theory).
 
 ```julia_repl
@@ -328,6 +344,10 @@ export coefficient, monomials, powers
 export Mvp, Monomial, @Mvp, variables, value, laurent_denominator, term,
        lex, grlex, grevlex, grobner_basis, rename_variables
 #------------------ Monomials ---------------------------------------------
+"""
+`Monomials` are implemented as a list of pairs `:variable=>degree` sorted
+in the alphabetic order of vraiables.
+"""
 struct Monomial{T} # T is Int or Rational{Int}
   d::ModuleElt{Symbol,T}   
 end
@@ -360,6 +380,12 @@ Base.length(a::Monomial)=length(a.d)
 variables(a::Monomial)=keys(a.d)
 "`powers(a::Monomial)` iterator on the powers of variables in `a`"
 powers(a::Monomial)=values(a.d)
+"""
+`pairs(a::Monomial)` 
+
+returns the pairs `:variable=>power` in `a`.
+"""
+Base.pairs(a::Monomial)=pairs(a.d)
 ispositive(a::Monomial)=all(>=(0),powers(a))
 
 const unicodeFrac=Dict((1,2)=>'½',(1,3)=>'⅓',(2,3)=>'⅔',
@@ -452,7 +478,7 @@ end
 """
 `grevlex(a::Monomial, b::Monomial)`
 The "grevlex" ordering, where `a<b̀` if `degree(a)>degree(b)` or the degrees
-are equal but the las variable in ``a/b`` occurs to a negative power
+are equal but the last variable in `a/b` occurs to a negative power.
 """
 function grevlex(a::Monomial, b::Monomial)
   da=degree(a);db=degree(b)
@@ -493,6 +519,10 @@ function LaurentPolynomials.root(m::Monomial,n::Integer=2)
 end
 
 #------------------------------------------------------------------------------
+"""
+`Mvp`s are implemented as a list of pairs `monomial=>coefficient` sorted
+by the monomial order `lex`.
+"""
 struct Mvp{T,N} # N=type of exponents T=type of coeffs
   d::ModuleElt{Monomial{N},T}
 end
@@ -500,13 +530,13 @@ end
 Mvp(a::Pair...;c...)=Mvp(ModuleElt(a...;c...))
 Mvp(;c...)=zero(Mvp{Int,Int}) # for some calls to map() to work
 
-macro Mvp(t) """
+"""
  `@Mvp x,y`
 
  is  equivalent to `x=Mvp(:x);y=Mvp(:y)`  excepted it creates  `x,y` in the
  global scope of the current module, since it uses `eval`.
 """
-# @Mvp x,y,z defines variables to be Mvp
+macro Mvp(t)
   if t isa Expr
     for v in t.args
       Base.eval(Main,:($v=Mvp($(Core.QuoteNode(Symbol(v))))))
@@ -565,6 +595,10 @@ Base.convert(::Type{Mvp{T,N}},a::Mvp{T1,N1}) where {T,T1,N,N1}=
   Mvp(convert(ModuleElt{Monomial{N},T},a.d))
 Base.convert(::Type{Mvp},x::Mvp)=x
 Base.convert(::Type{Mvp},v::Symbol)=Mvp(Monomial(v)=>1;check=false)
+"""
+`Mvp(x::Symbol)` creates the `Mvp` with one term of degree one and coefficient
+1 with variable `x`
+"""
 Mvp(x::Symbol)=convert(Mvp,x)
 Mvp(x::Number)=convert(Mvp,x)
 Mvp(x::Mvp)=x
@@ -711,21 +745,21 @@ coefficient(p::Mvp,m::Monomial)=p.d[m]
 """
 `pairs(p::Mvp)` 
 
-returns the pairs monomial=>coefficient in `p`
+returns the pairs monomial=>coefficient in `p`.
 """
 Base.pairs(p::Mvp)=pairs(p.d)
 
 """
 `monomials(p::Mvp)` 
 
-is an efficient iterator over the monomials of `p`
+is an efficient iterator over the monomials of `p`.
 """
 monomials(p::Mvp)=keys(p.d)
 
 """
 `coefficients(p::Mvp)` 
 
-is an efficient iterator over the coefficients of the monomials in `p`
+is an efficient iterator over the coefficients of the monomials in `p`.
 """
 LaurentPolynomials.coefficients(p::Mvp)=values(p.d)
 
@@ -871,7 +905,7 @@ function LaurentPolynomials.Pol(p::Mvp{T,N},var::Symbol)where{T,N}
 end
 
 """
-`Mvp(p)` converts  the `Pol`  `p` to  an  `Mvp`. 
+`Mvp(p::Pol)` converts `p` to  an  `Mvp` (with the same variable name). 
 
 ```julia-repl
 julia> @Pol q
