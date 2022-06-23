@@ -352,8 +352,15 @@ struct Monomial{T} # T is Int or Rational{Int}
   d::ModuleElt{Symbol,T}   
 end
 
-Monomial(a::Union{Pair,Symbol}...)=Monomial(ModuleElt(map(x->x isa Symbol ?
-          x=>1 : x,a)...)) # to be avoided when preformance needed
+function Monomial(a::Union{Pair,Symbol}...)# convenient but slow
+  a=promote(map(x->x isa Symbol ? x=>1 : x,a)...)
+  Monomial(ModuleElt(collect(a)))
+end
+
+function Monomial(a::Pair{Symbol,T}...)where T
+  Monomial(ModuleElt(collect(a)))
+end
+
 Monomial()=one(Monomial{Int})
 
 Base.convert(::Type{Monomial{T}},v::Symbol) where T=Monomial(v=>T(1))
@@ -527,7 +534,7 @@ struct Mvp{T,N} # N=type of exponents T=type of coeffs
   d::ModuleElt{Monomial{N},T}
 end
 
-Mvp(a::Pair...;c...)=Mvp(ModuleElt(a...;c...))
+Mvp(a::Pair...;c...)=Mvp(ModuleElt(collect(promote(a...));c...))
 Mvp(;c...)=zero(Mvp{Int,Int}) # for some calls to map() to work
 
 """
