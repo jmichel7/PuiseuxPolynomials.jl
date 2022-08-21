@@ -395,6 +395,9 @@ returns the pairs `:variable=>power` in `a`.
 Base.pairs(a::Monomial)=pairs(a.d)
 ispositive(a::Monomial)=all(>=(0),powers(a))
 
+"copy of m with pairs at i (position or vector of positions) deleted"
+deleteat(m::Monomial,i)=Monomial(ModuleElt(deleteat!(copy(pairs(m)),i);check=false))
+
 const unicodeFrac=Dict((1,2)=>'½',(1,3)=>'⅓',(2,3)=>'⅔',
   (1,4)=>'¼',(3,4)=>'¾',(1,5)=>'⅕',(2,5)=>'⅖',(3,5)=>'⅗',
   (4,5)=>'⅘',(1,6)=>'⅙',(5,6)=>'⅚',(1,8)=>'⅛',(3,8)=>'⅜',
@@ -423,7 +426,7 @@ function Base.show(io::IO,m::Monomial)
   replorTeX=get(io,:TeX,false) || get(io,:limit,false)
   if !replorTeX
     print(io,"Monomial(")
-    join(io,map(m.d)do (s,c)
+    join(io,map(pairs(m))do (s,c)
       if c==1 repr(s)
       elseif c==2 join([repr(s),repr(s)],",")
       else repr(s=>c)
@@ -434,7 +437,7 @@ function Base.show(io::IO,m::Monomial)
   end
   if isone(m) return end
   start=true
-  for (v,d) in m.d
+  for (v,d) in pairs(m)
     if !(start || replorTeX) print(io,"*") end
     print(io,string(v))
     if !isone(d) 
@@ -456,20 +459,22 @@ function Base.show(io::IO, ::MIME"text/plain", m::Monomial)
   show(io,m)
 end
 
+function lex(a::Vector{<:Pair}, b::Vector{<:Pair})
+  for ((va,pa),(vb,pb)) in zip(a,b)
+    if va!=vb return va<vb ? pa>0 : pb<0 end
+    if pa!=pb return pb<pa end
+  end
+  la=length(a)
+  lb=length(b)
+  @inbounds la>lb ? last(a[lb+1])>0 : lb>la ? last(b[la+1])<0 : false
+end
+
 """
 `lex(a::Monomial, b::Monomial)`
 The  "lex" ordering,  where `a<b`  if the  first variable  in `a/b`
 occurs to a positive power.
 """
-function lex(a::Monomial, b::Monomial)
-  for ((va,pa),(vb,pb)) in zip(a.d,b.d)
-    if va!=vb return va<vb ? pa>0 : pb<0 end
-    if pa!=pb return isless(pb,pa) end
-  end
-  la=length(a.d)
-  lb=length(b.d)
-  @inbounds la>lb ? last(a.d.d[lb+1])>0 : lb>la ? last(b.d.d[la+1])<0 : false
-end
+lex(a::Monomial, b::Monomial)=lex(pairs(a),pairs(b))
 
 """
 `grlex(a::Monomial, b::Monomial)`
@@ -478,7 +483,7 @@ are equal but `lex(a,b)`.
 """
 function grlex(a::Monomial, b::Monomial)
   da=degree(a);db=degree(b)
-  if da!=db return isless(db,da) end
+  if da!=db return db<da end
   lex(a,b)
 end
 
@@ -489,9 +494,8 @@ are equal but the last variable in `a/b` occurs to a negative power.
 """
 function grevlex(a::Monomial, b::Monomial)
   da=degree(a);db=degree(b)
-  if da!=db return isless(db,da) end
-  lex(Monomial(ModuleElt(reverse(b.d.d))),
-      Monomial(ModuleElt(reverse(a.d.d))))
+  if da!=db return db<da end
+  lex(reverse(pairs(b)),reverse(pairs(a)))
 end
 
 """
@@ -503,7 +507,7 @@ we  use the  "lex" ordering.
 """
 @inline Base.isless(a::Monomial, b::Monomial)=lex(a,b)
 
-Base.:(==)(a::Monomial, b::Monomial)=a.d==b.d
+Base.:(==)(a::Monomial, b::Monomial)=pairs(a)==pairs(b)
 
 #monomial d of greatest degree in each variable such that (m/d,n/d) positive
 Base.gcd(m::Monomial,n::Monomial)=Monomial(ModuleElts.merge2(min,m.d,n.d))
@@ -516,12 +520,12 @@ Base.lcm(v::AbstractArray{<:Monomial})=reduce(lcm,v)
 Base.hash(a::Monomial, h::UInt)=hash(a.d,h)
 
 LaurentPolynomials.degree(m::Monomial)=sum(powers(m);init=0)
-LaurentPolynomials.degree(m::Monomial,var::Symbol)=m.d[var]
+LaurentPolynomials.degree(m::Monomial,var::Symbol)=m[var]
 
 function LaurentPolynomials.root(m::Monomial,n::Integer=2)
   if all(x->iszero(x%n),powers(m)) 
-       Monomial(ModuleElt(k=>div(v,n) for (k,v) in m.d))
-  else Monomial(ModuleElt(k=>v//n for (k,v) in m.d))
+    Monomial(ModuleElt(k=>div(v,n) for (k,v) in pairs(m)))
+  else Monomial(ModuleElt(k=>v//n for (k,v) in pairs(m)))
   end
 end
 
@@ -582,8 +586,8 @@ function Base.show(io::IO, x::Mvp)
 end
 
 Base.length(x::Mvp)=length(x.d)
-term(x::Mvp,i)=x.d.d[i]
-ismonomial(x::Mvp)=length(x.d)==1 # x is a non-zero monomial
+term(x::Mvp,i)=pairs(x)[i]
+ismonomial(x::Mvp)=length(x)==1 # x is a non-zero monomial
 Base.zero(p::Mvp)=Mvp(zero(p.d))
 Base.zero(::Type{Mvp{T,N}}) where {T,N}=Mvp(zero(ModuleElt{Monomial{N},T}))
 Base.one(::Type{Mvp{T,N}}) where {T,N}=Mvp(one(Monomial{N})=>one(T);check=false)
@@ -591,7 +595,7 @@ Base.one(::Type{Mvp{T}}) where T=one(Mvp{T,Int})
 Base.one(::Type{Mvp})=Mvp(1)
 Base.one(p::Mvp{T,N}) where {T,N}=iszero(p) ? one(Mvp{T,N}) : Mvp(one(Monomial{N})=>one(first(coefficients(p)));check=false)
 Base.isone(x::Mvp)=ismonomial(x) && isone(first(term(x,1)))&&isone(last(term(x,1)))
-Base.copy(p::Mvp)=Mvp(p.d)
+Base.copy(p::Mvp)=Mvp(ModuleElt(copy(pairs(p))))
 Base.iszero(p::Mvp)=iszero(p.d)
 Base.convert(::Type{Mvp},a::Number)=convert(Mvp{typeof(a),Int},a)
 Base.convert(::Type{Mvp{T,N}},a::Number) where {T,N}=iszero(a) ? 
@@ -808,17 +812,16 @@ the values of `coefficients`.
 """
 function LaurentPolynomials.coefficients(p::Mvp{T,N},v::Symbol)where {T,N}
   if iszero(p) return Dict{Int,typeof(p)}() end
-  d=Dict{N,typeof(p.d.d)}()
+  d=Dict{N,typeof(pairs(p))}()
   for (m,c) in pairs(p)
     found=false
-    for (i,(v1,deg)) in enumerate(m.d)
+    for (i,(v1,deg)) in enumerate(pairs(m))
       if v1==v 
         found=true
-        d[deg]=push!(get!(d,deg,empty(p.d.d)),
-                Monomial(ModuleElt(deleteat!(copy(m.d.d),i);check=false))=>c)
+        d[deg]=push!(get!(d,deg,empty(pairs(p))),deleteat(m,i)=>c)
       end
     end
-    if !found  d[0]=push!(get!(d,0,empty(p.d.d)),m=>c) end
+    if !found  d[0]=push!(get!(d,0,empty(pairs(p))),m=>c) end
   end
   Dict(dg=>Mvp(c...;check=false) for (dg,c) in d) # c... is sorted by defn of monomial order
 end
@@ -840,13 +843,13 @@ Mvp{Int64,Rational{Int64}}: 3y+6y½+3
 ```
 """
 function coefficient(p::Mvp,var::Symbol,d)
-  res=empty(p.d.d)
+ res=empty(pairs(p))
   for (m,c) in pairs(p)
     found=false
-    for (i,(v1,deg)) in enumerate(m.d)
+    for (i,(v1,deg)) in enumerate(pairs(m))
       if v1==var && deg==d
         found=true
-        push!(res,Monomial(ModuleElt(deleteat!(copy(m.d.d),i);check=false))=>c)
+        push!(res,deleteat(m,i)=>c)
         break
       elseif v1>var break
       end
@@ -897,11 +900,10 @@ function LaurentPolynomials.Pol(p::Mvp{T,N},var::Symbol)where{T,N}
   res=[Pair{Monomial{N},T}[] for i in v:Int(degree(p,var))]
   for (m,c) in pairs(p)
     found=false
-    for (i,(v1,deg)) in enumerate(m.d)
+    for (i,(v1,deg)) in enumerate(pairs(m))
       if v1==var 
         found=true
-        push!(res[Int(deg)-v+1],
-             Monomial(ModuleElt(deleteat!(copy(m.d.d),i);check=false))=>c)
+        push!(res[Int(deg)-v+1],deleteat(m,i)=>c)
         break
       elseif v1>var break
       end
@@ -1041,7 +1043,7 @@ function value(p::Mvp,k::Pair...)
   end 
   for (i,(m,c1)) in enumerate(pairs(p))
     res=badj=nothing
-    for (j,(v,c)) in enumerate(m.d)
+    for (j,(v,c)) in enumerate(pairs(m))
       if length(k)==1 && key!=v continue end
       if length(k)>1 
         if !haskey(vv,v) continue 
@@ -1058,7 +1060,7 @@ function value(p::Mvp,k::Pair...)
       push!(badj,j)
     end
     if badj!==nothing
-      res*=Monomial(ModuleElt(deleteat!(copy(m.d.d),badj);check=false))
+      res*=deleteat(m,badj)
       badj=nothing
       if badi===nothing res1=res
         badi=Int[]
@@ -1519,7 +1521,7 @@ Mvp{Int64}: U+V+y
 function rename_variables(p::Mvp,l::Pair{Symbol,Symbol}...)
   d=Dict(l)
   Mvp(ModuleElt(map(pairs(p)) do (m,c)
-    Monomial(ModuleElt(map(((v,i),)->(haskey(d,v) ? d[v] : v)=>i,m.d.d)))=>c
+    Monomial(ModuleElt(map(((v,i),)->(haskey(d,v) ? d[v] : v)=>i,pairs(m))))=>c
   end))
 end
 
