@@ -1,3 +1,3 @@
-using Documenter, DocumenterMarkdown, PuiseuxPolynomials, LaurentPolynomials
+using Documenter, DocumenterMarkdown, PuiseuxPolynomials
 
 makedocs(sitename="Mvps.jl documentation",format=Markdown(),modules=[PuiseuxPolynomials])

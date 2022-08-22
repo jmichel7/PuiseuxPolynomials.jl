@@ -1,5 +1,5 @@
 # auto-generated tests from julia-repl docstrings
-using Test, PuiseuxPolynomials, LaurentPolynomials
+using Test, PuiseuxPolynomials
 function mytest(f::String,a::String,b::String)
   println(f," ",a)
   omit=a[end]==';'
@@ -24,6 +24,8 @@ end
 @test mytest("PuiseuxPolynomials.jl","x+Mvp(:z)","Mvp{Int64}: x+z")
 @test mytest("PuiseuxPolynomials.jl","x^(1//2)","Mvp{Int64,Rational{Int64}}: x½")
 @test mytest("PuiseuxPolynomials.jl","Mvp(3)","Mvp{Int64}: 3")
+@test mytest("PuiseuxPolynomials.jl","repr(3x*y^-2+4)","\"Mvp(Monomial(:x, :y => -2) => 3, Monomial() => 4)\"")
+@test mytest("PuiseuxPolynomials.jl","repr(x^(1//2))","\"Mvp(Monomial(:x => 1//2))\"")
 @test mytest("PuiseuxPolynomials.jl","(4x)^(1//2)","Mvp{Int64,Rational{Int64}}: 2x½")
 @test mytest("PuiseuxPolynomials.jl","(2.0x)^(1//2)","Mvp{Float64,Rational{Int64}}: 1.4142135623730951x½")
 @test mytest("PuiseuxPolynomials.jl","root(2.0x)","Mvp{Float64,Rational{Int64}}: 1.4142135623730951x½")

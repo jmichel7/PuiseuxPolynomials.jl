@@ -1,29 +1,34 @@
 """
-This  package, which depends only  on the packages `LaurentPolynomials` and
-`ModuleElts`,  implements Puiseux polynomials,  that is linear combinations
-of  monomials of the  type `x₁^{a₁}… xₙ^{aₙ}`  where `xᵢ` are variables and
-`aᵢ`  are exponents which can be arbitrary rational numbers.
+This package implements Puiseux polynomials, that is linear combinations of
+monomials  of the type `x₁^{a₁}… xₙ^{aₙ}` where `xᵢ` are variables and `aᵢ`
+are  exponents which can be arbitrary  rational numbers. It depends only on
+the  packages `Reexport`, `LaurentPolynomials` and `ModuleElts`s; the names
+defined by `LaurentPolynomials` are reexported by this package.
 
 Recall  that  on  an  algebraically  closed coefficient field, the quotient
 field  of the Puiseux polynomials is  the algebraic closure of the quotient
-field  of  the  multivariate  polynomials.  We use Puiseux polynomials with
-cyclotomic coefficients as splitting fields of cyclotomic Hecke algebras.
+field  of the multivariate polynomials.  `Frac` of Puiseux polynomials with
+cyclotomic   coefficients  are  a  splitting  field  for  cyclotomic  Hecke
+algebras.
 
 This  package is in particular  a perfectly usable (and  quite good I hope)
 implementation   of  multivariate  polynomials  and  multivariate  rational
 fractions if you are only interested in that.
 
 Some  functions described below work  only with polynomials where variables
-are  raised to integral powers;  we will refer to  such objects as "Laurent
-polynomials"; some functions require further that variables are raised only
-to  positive powers: we refer then to "true polynomials".
+are   raised  to  integral  powers;  we  will  refer  to  such  objects  as
+"multivariate  Laurent  polynomials";  some  functions require further that
+variables   are  raised  only   to  positive  powers:   we  refer  then  to
+"multivariate polynomials" (or true polynomials).
 
 Puiseux  polynomials have the  parametric type `Mvp{C,E}`  where `C` is the
-type  of the coefficients and `E` is the type of the exponents (`E=Int` for
+type  of the coefficients and `E` is the type of the exponents; `E=Int` for
 Laurent   polynomials;   `E=Rational{Int}`   for   more   general   Puiseux
-polynomials).  When printing only `C` is  printed if `E==Int`. The rational
-fractions  have type  `Frac{Mvp{C,Int}}`(and in  addition the numerator and
-denominator should be true polynomials).
+polynomials.  When  printing  only  `C`  is  printed  if `E==Int`. Rational
+fractions  are only defined for  numerator and denominator true polynomials
+and  have type  `Frac{Mvp{C,Int}}` ---  you can  build a  fraction from the
+quotient  of two Laurent polynomials but the result will be normalized to a
+quotient of two true polynomials.
 
 We first look at how to make Puiseux polynomials.
 
@@ -58,12 +63,12 @@ create  them more  directly, `Monomial(:x=>1,:y=>-2)`  creates the monomial
 `Mvp`  `3xy⁻²+4`. This is the way `Mvp` are printed in another context than
 the repl, IJulia or Pluto (where they display nicely as shown above).
 
-```julia-rep1
-julia> print(3x*y^-2+4)
-Mvp(Monomial(:x,:y => -2) => 3,Monomial() => 4) # :x is shorthand for :x=>1
+```julia-repl
+julia> repr(3x*y^-2+4)
+"Mvp(Monomial(:x, :y => -2) => 3, Monomial() => 4)" # :x is shorthand for :x=>1
 
-julia> print(x^(1//2))
-Mvp(Monomial(:x => 1//2) => 1)
+julia> repr(x^(1//2))
+"Mvp(Monomial(:x => 1//2))"
 ```
 
 Only  monomials and one-term `Mvp`s can  be raised to a non-integral power;
@@ -84,17 +89,17 @@ Mvp{Float64,Rational{Int64}}: 1.4142135623730951x½
 
 One  may  want  to  define  `root`  differently;  for instance, in my other
 package   `CylotomicNumbers`  I   define  square   roots  of  rationals  as
-cyclotomics;  I also have implemented in `CylotomicNumbers` arbitrary roots
-of roots of unity). Using `CylotomicNumbers`:
+cyclotomics, and I also have implemented arbitrary roots of roots of unity.
 
 ```julia-rep1
+julia> using CyclotomicNumbers
+
 julia> (2x)^(1//2)
 Mvp{Cyc{Int64},Rational{Int64}}: √2x½
 
 julia> (E(3)*x)^(2//3)
 Mvp{Cyc{Int64},Rational{Int64}}: ζ₉²x⅔
 ```
-
 There  are various ways to take an  `Mvp` apart. Below are the most direct;
 look   also  at  the   functions  `coefficient`,  `coefficients`,  `pairs`,
 `monomials`, `variables` and `powers`.
@@ -123,10 +128,10 @@ Monomial{Int64}:xy⁻²
 julia> length(m) # how many variables in m
 2
 
-julia> m[:x] # power of x in m
+julia> m[:x] # power of x in m, same as `degree(m,:x)`
 1
 
-julia> m[:y] # power of y in m
+julia> m[:y] # power of y in m, same as `degree(m,:y)`
 -2
 
 julia> map((x,y)->x=>y,variables(m),powers(m)) # same as pairs(m)
@@ -156,8 +161,8 @@ julia> valuation(p),valuation(p,:x),valuation(p,:y)
 
 Terms  are totally ordered in an `Mvp`  by a monomial ordering (that is, an
 ordering  on  monomials  so  that  `x<y`  implies `xz<yz` for any monomials
-`x,y,z`).  By default, the  ordering is `lex`.  The terms are in decreasing
-order,  so that the  first term is  the highest. The  orderings `grlex` and
+`x,y,z`).  The terms are in decreasing order, so that the first term is the
+highest.  By  default,  the  ordering  is  `lex`. The orderings `grlex` and
 `grevlex` are also implemented (see `grobner_basis` for how to use them).
 
 An  `Mvp` is a *scalar*  if the valuation and  degree are `0`. The function
@@ -212,8 +217,8 @@ Mvp{Int64}: x+2
 ```
 
 Note  that  an  `Mvp`  always  evaluates  to an `Mvp`, for consistency. You
-should  use `scalar`  on the  result of  evaluating all  variables to get a
-number.
+should  use `scalar` on the  result of giving values  to all variables in a
+`Mvp` to get a number.
 
 ```julia-repl
 julia> p(x=1,y=2)
@@ -242,7 +247,7 @@ Mvp{Float64}: 0.5x⁻¹+0.5x⁻²y
 julia> (x+y)//(2x^2)
 Mvp{Rational{Int64}}: (1//2)x⁻¹+(1//2)x⁻²y
 
-julia> (x+y)/(x-y)    # otherwise one gets a rational fraction
+julia> (x+y)/(x-y)   # if the division is not exact one gets a rational fraction
 Frac{Mvp{Int64, Int64}}: (x+y)/(x-y)
 ```
 
@@ -332,14 +337,13 @@ Mvp{Int64}: y⁻⁴
 julia> bar(p)
 Mvp{Int64}: y⁴+4x⁻¹y³+6x⁻²y²+4x⁻³y+x⁻⁴
 ```
-
 Despite  the degree of generality of our  polynomials, the speed is not too
-shabby. For the Fateman test f(f+1) where f=(1+x+y+z+t)^15, we take 3sec.
+shabby.  For the Fateman test f(f+1)  where f=(1+x+y+z+t)^15, we take 3sec.
 According to the Nemo paper, Sagemath takes 10sec and Nemo takes 1.6sec.
 """
 module PuiseuxPolynomials
-using ModuleElts
-using LaurentPolynomials
+using ModuleElts, Reexport
+@reexport using LaurentPolynomials
 export coefficient, monomials, powers
 export Mvp, Monomial, @Mvp, variables, value, laurent_denominator, term,
        lex, grlex, grevlex, grobner_basis, rename_variables
@@ -428,10 +432,10 @@ function Base.show(io::IO,m::Monomial)
     print(io,"Monomial(")
     join(io,map(pairs(m))do (s,c)
       if c==1 repr(s)
-      elseif c==2 join([repr(s),repr(s)],",")
+      elseif c==2 repr(s)*", "*repr(s)
       else repr(s=>c)
       end
-    end,",")
+    end,", ")
     print(io,")")
     return
   end
@@ -539,6 +543,12 @@ struct Mvp{T,N} # N=type of exponents T=type of coeffs
 end
 
 Mvp(a::Pair...;c...)=Mvp(ModuleElt(collect(promote(a...));c...))
+
+function Mvp(a::Union{Pair,Monomial}...)# convenient but slow
+  a=promote(map(x->x isa Monomial ? x=>1 : x,a)...)
+  Mvp(ModuleElt(collect(a)))
+end
+
 Mvp(;c...)=zero(Mvp{Int,Int}) # for some calls to map() to work
 
 """
@@ -580,7 +590,11 @@ function Base.show(io::IO, x::Mvp)
     # :showbasis=>nothing necessary if called when already showing a ModuleElt
   else
     print(io,"Mvp(")
-    join(io,repr.(pairs(x)),",")
+    join(io,map(pairs(x))do (m,c)
+      if c==1 repr(m)
+      else repr(m=>c)
+      end
+    end,", ")
     print(io,")")
   end
 end
@@ -1172,13 +1186,16 @@ function LaurentPolynomials.exactdiv(p::Mvp,q::Mvp)
   res=zero(p)
   mq=degree(q,var)
   cq=coefficient(q,var,mq)
-  while !iszero(p)
+  p1=p
+  while !iszero(p1)
 #   if length(p)<length(q) return nothing end
-    mp=degree(p,var)
-    t=exactdiv(coefficient(p,var,mp),cq)
-    if mp!=mq t=Monomial(ModuleElt(var=>mp-mq))*t end
+    mp=degree(p1,var)
+    t=exactdiv(coefficient(p1,var,mp),cq)
+    if mp<mq  error(q," does not exactly divide ",p)
+    elseif mp!=mq t=Monomial(ModuleElt(var=>mp-mq))*t
+    end
     res+=t
-    p-=t*q
+    p1-=t*q
   end
   res
 end
@@ -1531,14 +1548,14 @@ rename_variables(p::Mvp,l::AbstractVector{Symbol})=
 #julia> @btime (x+y+z)^3;
 #  2.292 μs (49 allocations: 5.42 KiB)
 
-#julia1.6.3> @btime PuiseuxPolynomials.fateman(15)
-# 4.040 s (15219390 allocations: 5.10 GiB)
+#julia1.8.0> @btime PuiseuxPolynomials.fateman(15)
+# 2.888 s (15219387 allocations: 4.87 GiB)
 function fateman(n)
   f=(1+sum(Mvp.((:x,:y,:z,:t))))*one(n)
   f=f^n
   length(f*(f+1))
 end
 
-# @btime inv(Frac.([x+y x-y;x+1 y+1])) setup=(x=Mvp(:x);y=Mvp(:y))
-# 195.739 μs (4483 allocations: 296.94 KiB)
+#julia1.8.0> @btime inv(Frac.([x+y x-y;x+1 y+1])) setup=(x=Mvp(:x);y=Mvp(:y))
+# 139.657 μs (3284 allocations: 235.44 KiB)
 end
