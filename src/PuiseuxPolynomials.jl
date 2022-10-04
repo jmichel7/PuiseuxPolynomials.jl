@@ -1268,6 +1268,23 @@ Base.eltype(p::Mvp{T,N}) where{T,N} =T
 
 Base.denominator(p::Mvp)=lcm(denominator.(coefficients(p)))
 Base.numerator(p::Mvp{<:Rational{T},N}) where{T,N} =convert(Mvp{T,N},p*denominator(p))
+#----------cohabitation of monomials and Mvps ------------------------------------
+
+Base.promote_rule(::Type{Monomial{N}},::Type{T2}) where {N,T2<:Number}=Mvp{T2,N}
+
+Base.promote_rule(::Type{Mvp{T,N}},::Type{Monomial{N1}}) where {T,N,N1} =
+  Mvp{T,promote_type(N,N1)}
+
+Base.convert(::Type{Mvp{T,N}},m::Monomial{N1}) where{T,N,N1}=Mvp(convert(Monomial{N},m)=>1)
+
+Base.:+(a::Monomial,b::Monomial)=Mvp(a=>1,b=>1)
+Base.:+(a::Union{Mvp,Number},b::Monomial)=+(promote(a,b)...)
+Base.:+(b::Monomial,a::Union{Mvp,Number})=+(promote(a,b)...)
+Base.:-(a::Monomial,b::Monomial)=Mvp(a=>1,b=>-1)
+Base.:-(a::Union{Mvp,Number},b::Monomial)=-(promote(a,b)...)
+Base.:-(b::Monomial,a::Union{Mvp,Number})=-(promote(a,b)...)
+Base.:*(b::Monomial,a::Number)=Mvp(b=>a)
+Base.:*(a::Number,b::Monomial)=Mvp(b=>a)
 #----------------------------- Frac{Mvp{T,Int}} -------------------------------
 # make both pols positive without common monomial factor
 function make_positive(a::Mvp,b::Mvp)
