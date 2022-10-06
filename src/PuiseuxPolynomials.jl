@@ -346,7 +346,7 @@ using ModuleElts, Reexport
 @reexport using LaurentPolynomials
 export coefficient, monomials, powers
 export Mvp, Monomial, @Mvp, variables, value, laurent_denominator, term,
-       lex, grlex, grevlex, grobner_basis, rename_variables
+       lex, grlex, grevlex, grobner_basis, rename_variables, ispositive
 #------------------ Monomials ---------------------------------------------
 """
 `Monomials` are implemented as a list of pairs `:variable=>degree` sorted
@@ -947,7 +947,7 @@ Base.convert(::Type{Mvp},p::Pol)=p(Mvp(LaurentPolynomials.varname[]))
 """
 `variables(p::Mvp)`
 
-`variables(v::Array{Mvp})`
+`variables(v::AbstractArray)`
 
 returns  the list of  variables of `p`  (resp. all `p`  in `v`) as a sorted
 list of `Symbol`s.
@@ -955,14 +955,14 @@ list of `Symbol`s.
 ```julia-repl
 julia> @Mvp x,y,z
 
-julia> variables([x+y+1,z])
+julia> variables([z,[y+z],x])
 3-element Vector{Symbol}:
  :x
  :y
  :z
 ```
 """
-variables(pp::AbstractArray{<:Mvp})=sort(unique(k1 for p in pp for k in monomials(p) for k1 in variables(k)))
+variables(pp::AbstractArray)=sort(unique(v for p in pp for v in variables(p)))
 
 variables(p::Mvp)=sort(unique(k1 for k in monomials(p) for k1 in variables(k)))
 
@@ -995,9 +995,9 @@ function LaurentPolynomials.scalar(p::Mvp{T})where T
   end
 end
 
-function LaurentPolynomials.scalar(m::AbstractArray{<:Mvp})
+function LaurentPolynomials.scalar(m::AbstractArray)
   p=scalar.(m)
-  if !any(isnothing,p) return p end
+  if !any(isnothing,p) return nothing end
 end
 
 """
@@ -1132,6 +1132,8 @@ LaurentPolynomials.negative_part(p::Mvp)=
   Mvp(ModuleElt(m=>c for (m,c) in pairs(p) if all(<(0),powers(m));check=false))
 
 LaurentPolynomials.bar(p::Mvp)=Mvp(ModuleElt(inv(m)=>c for (m,c) in pairs(p)))
+
+ispositive(p::Mvp)=all(ispositive,monomials(p))
 
 """
 The  function 'derivative(p,v₁,…,vₙ)' returns the  derivative of 'p' with 
