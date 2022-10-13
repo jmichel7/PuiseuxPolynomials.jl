@@ -57,19 +57,25 @@ Mvp{Int64}: 3
 `Mvp(x::Number)`  returns the multivariate polynomial  with only a constant
 term, equal to `x`.
 
-It  is convenient to create `Mvp`s using  variables such as `x,y` above. To
-create  them more  directly, `Monomial(:x=>1,:y=>-2)`  creates the monomial
-`xy⁻²`, and then `Mvp(Monomial(:x=>1,:y=>-2)=>3,Monomial()=>4)` creates the
-`Mvp`  `3xy⁻²+4`. This is the way `Mvp` are printed in another context than
-the repl, IJulia or Pluto (where they display nicely as shown above).
+It  is convenient to create `Mvp`s using variables such as `x,y` above. The
+function  `repr`  shows  an  `Mvp`  in  a "compromise" form, which is still
+readable  but can be read back  in Julia (this is also  the way an `Mvp` is
+printed in another context than the repl, IJulia or pluto):
 
 ```julia-repl
 julia> repr(3x*y^-2+4)
-"Mvp(Monomial(:x, :y => -2) => 3, Monomial() => 4)" # :x is shorthand for :x=>1
-
-julia> repr(x^(1//2))
-"Mvp(Monomial(:x => 1//2))"
+"let (x,y)=Monomial(:x,:y);3x*y^-2+4 end"
 ```
+The above output can be interpreted in 300ns. To make a database of `Mvp`s,
+a more efficient form is desirable.
+
+```julia-repl
+julia> repr(3x*y^-2+4,context=:efficient=>true)
+"Mvp_(Monomial_(:x => 1, :y => -2) => 3, Monomial_() => 4)"
+```
+The above form can be interpreted in 80ns. Here the constructor `Monomial_`
+takes pairs of a symbol and a power, and the constructor `Mvp_` takes pairs
+of a monomial and a coefficient.
 
 Only  monomials and one-term `Mvp`s can  be raised to a non-integral power;
 the  `Mvp` with one term constant `c`  times the monomial `m` can be raised
@@ -345,7 +351,8 @@ module PuiseuxPolynomials
 using ModuleElts, Reexport
 @reexport using LaurentPolynomials
 export coefficient, monomials, powers
-export Mvp, Monomial, @Mvp, variables, value, laurent_denominator, term,
+export Mvp, Mvp_, Monomial, Monomial_, @Mvp, variables, value, 
+       laurent_denominator, term,
        lex, grlex, grevlex, grobner_basis, rename_variables, ispositive
 #------------------ Monomials ---------------------------------------------
 """
@@ -356,14 +363,14 @@ struct Monomial{T} # T is Int or Rational{Int}
   d::ModuleElt{Symbol,T}   
 end
 
-function Monomial(a::Union{Pair,Symbol}...)# convenient but slow
-  a=promote(map(x->x isa Symbol ? x=>1 : x,a)...)
-  Monomial(ModuleElt(collect(a)))
+Monomial(x::Symbol...)=length(x)==1 ? Monomial_(first(x)=>1)=>1 :
+   map(s->Monomial_(s=>1),x)
+
+function Monomial_(a::Pair{Symbol,T}...)where T
+  Monomial(ModuleElt(a...;check=false))
 end
 
-function Monomial(a::Pair{Symbol,T}...)where T
-  Monomial(ModuleElt(collect(a)))
-end
+Monomial_()=one(Monomial{Int})
 
 Monomial()=one(Monomial{Int})
 
@@ -428,14 +435,9 @@ end
 
 function Base.show(io::IO,m::Monomial)
   replorTeX=get(io,:TeX,false) || get(io,:limit,false)
-  if !replorTeX
-    print(io,"Monomial(")
-    join(io,map(pairs(m))do (s,c)
-      if c==1 repr(s)
-      elseif c==2 repr(s)*", "*repr(s)
-      else repr(s=>c)
-      end
-    end,", ")
+  if get(io,:efficient,false)
+    print(io,"Monomial_(")
+    join(io,pairs(m),", ")
     print(io,")")
     return
   end
@@ -542,7 +544,9 @@ struct Mvp{T,N} # N=type of exponents T=type of coeffs
   d::ModuleElt{Monomial{N},T}
 end
 
-Mvp(a::Pair...;c...)=Mvp(ModuleElt(collect(promote(a...));c...))
+Mvp_(a::Pair{Monomial{N},T}...) where {N,T}=Mvp(ModuleElt(a...;check=false))
+Mvp_(a::Base.Generator)=Mvp(ModuleElt(a;check=false))
+Mvp_(a::Vector{Pair{Monomial{N},T}}) where {N,T}=Mvp(ModuleElt(a;check=false))
 
 function Mvp(a::Union{Pair,Monomial}...)# convenient but slow
   a=promote(map(x->x isa Monomial ? x=>1 : x,a)...)
@@ -584,18 +588,22 @@ function Base.show(io::IO, ::MIME"text/plain", a::Mvp{T,N}) where{T,N}
   show(io,a)
 end
 
-function Base.show(io::IO, x::Mvp)
+function Base.show(io::IO, p::Mvp)
   if get(io,:limit,false) || get(io,:TeX,false)
-    show(IOContext(io,:showbasis=>nothing),x.d)
+    show(IOContext(io,:showbasis=>nothing),p.d)
     # :showbasis=>nothing necessary if called when already showing a ModuleElt
-  else
-    print(io,"Mvp(")
-    join(io,map(pairs(x))do (m,c)
-      if c==1 repr(m)
-      else repr(m=>c)
-      end
-    end,", ")
+  elseif get(io,:efficient,false)
+    print(io,"Mvp_(")
+    join(io,pairs(p),", ")
     print(io,")")
+  else
+    v=variables(p)
+    print(io,"let ",length(v)==1 ? v[1] : "("*join(v,",")*")","=")
+    print(io,"Monomial","(",join(repr.(v),","),");")
+    if length(p)==1 && isone(last(term(p,1))) print(io,"Mvp(") end
+    show(IOContext(io,:limit=>true,:showbasis=>(io,s)->repr(s)),p.d)
+    if length(p)==1 && isone(last(term(p,1))) print(io,")") end
+    print(io," end")
   end
 end
 
@@ -604,27 +612,28 @@ term(x::Mvp,i)=pairs(x)[i]
 ismonomial(x::Mvp)=length(x)==1 # x is a non-zero monomial
 Base.zero(p::Mvp)=Mvp(zero(p.d))
 Base.zero(::Type{Mvp{T,N}}) where {T,N}=Mvp(zero(ModuleElt{Monomial{N},T}))
-Base.one(::Type{Mvp{T,N}}) where {T,N}=Mvp(one(Monomial{N})=>one(T);check=false)
+Base.one(::Type{Mvp{T,N}}) where {T,N}=Mvp_(one(Monomial{N})=>one(T))
 Base.one(::Type{Mvp{T}}) where T=one(Mvp{T,Int})
 Base.one(::Type{Mvp})=Mvp(1)
-Base.one(p::Mvp{T,N}) where {T,N}=iszero(p) ? one(Mvp{T,N}) : Mvp(one(Monomial{N})=>one(first(coefficients(p)));check=false)
+Base.one(p::Mvp{T,N}) where {T,N}=iszero(p) ? one(Mvp{T,N}) : Mvp_(one(Monomial{N})=>one(first(coefficients(p))))
 Base.isone(x::Mvp)=ismonomial(x) && isone(first(term(x,1)))&&isone(last(term(x,1)))
 Base.copy(p::Mvp)=Mvp(ModuleElt(copy(pairs(p))))
 Base.iszero(p::Mvp)=iszero(p.d)
 Base.convert(::Type{Mvp},a::Number)=convert(Mvp{typeof(a),Int},a)
 Base.convert(::Type{Mvp{T,N}},a::Number) where {T,N}=iszero(a) ? 
- zero(Mvp{T,N}) : Mvp(one(Monomial{N})=>convert(T,a);check=false)
+ zero(Mvp{T,N}) : Mvp_(one(Monomial{N})=>convert(T,a))
 (::Type{Mvp{T,N}})(a::Number) where {T,N}=convert(Mvp{T,N},a)
 (::Type{Mvp{T,N}})(a::Mvp) where {T,N}=convert(Mvp{T,N},a)
 Base.convert(::Type{Mvp{T,N}},a::Mvp{T1,N1}) where {T,T1,N,N1}=
   Mvp(convert(ModuleElt{Monomial{N},T},a.d))
 Base.convert(::Type{Mvp},x::Mvp)=x
-Base.convert(::Type{Mvp},v::Symbol)=Mvp(Monomial(v)=>1;check=false)
+Base.convert(::Type{Mvp},v::Symbol)=Mvp_(Monomial(v)=>1)
 """
 `Mvp(x::Symbol)` creates the `Mvp` with one term of degree one and coefficient
 1 with variable `x`
 """
-Mvp(x::Symbol)=convert(Mvp,x)
+Mvp(x::Symbol...)=length(x)==1 ? Mvp_(Monomial_(first(x)=>1)=>1) : 
+                          map(s->Mvp_(Monomial_(s=>1)=>1),x)
 Mvp(x::Number)=convert(Mvp,x)
 Mvp(x::Mvp)=x
 # stupid stuff to make LU work
@@ -665,8 +674,8 @@ Base.:-(b::Number, a::Mvp)=-(promote(b,a)...)
 
 Base.:*(a::Number, b::Mvp)=Mvp(b.d*a)
 Base.:*(b::Mvp, a::Number)=a*b
-# we have a monomial order so there is no ordering check in next line
-Base.:*(a::Monomial, b::Mvp)=Mvp(ModuleElt(m*a=>c for (m,c) in pairs(b);check=false))
+# we have a monomial order so we can use Mvp_
+Base.:*(a::Monomial, b::Mvp)=Mvp_(m*a=>c for (m,c) in pairs(b))
 Base.:*(b::Mvp,a::Monomial)=a*b
 
 function Base.:*(a::Mvp, b::Mvp)
@@ -685,7 +694,7 @@ end
 Base.:/(p::Mvp,q::Number)=Mvp(p.d/q)
 Base.://(p::Mvp,q::Number)=Mvp(p.d//q)
 Base.div(a::Mvp,b::Number)=Mvp(merge(div,a.d,b))
-LaurentPolynomials.exactdiv(a::Mvp,b::Number)=Mvp(merge(exactdiv,a.d,b;check=false))
+LaurentPolynomials.exactdiv(a::Mvp,b::Number)=Mvp(merge(exactdiv,a.d,b))
 
 """
 `conj(p::Mvp)` acts on the coefficients of `p`
@@ -695,7 +704,7 @@ julia> @Mvp x;conj(im*x+1)
 Mvp{Complex{Int64}}: (0 - 1im)x+1 + 0im
 ```
 """
-Base.conj(a::Mvp)=Mvp(merge(conj,a.d;check=false))
+Base.conj(a::Mvp)=Mvp(merge(conj,a.d))
 
 function Base.:^(x::Mvp, p::Union{Integer,Rational})
   if isinteger(p) p=Int(p) end
@@ -703,7 +712,7 @@ function Base.:^(x::Mvp, p::Union{Integer,Rational})
   elseif iszero(x) || isone(p) return x
   elseif p isa Rational return root(x,denominator(p))^numerator(p) 
   elseif ismonomial(x) 
-    (m,c)=term(x,1);return isone(c) ? Mvp(m^p=>c;check=false) : Mvp(m^p=>c^p;check=false)
+   (m,c)=term(x,1);return isone(c) ? Mvp_(m^p=>c) : Mvp_(m^p=>c^p)
   elseif p>=0 return Base.power_by_squaring(x,p) 
   else return Base.power_by_squaring(inv(x),-p)
   end
@@ -758,7 +767,7 @@ The coefficient of the polynomial `p` on the monomial `m`.
 julia> @Mvp x,y; p=(x-y)^3
 Mvp{Int64}: x³-3x²y+3xy²-y³
 
-julia> coefficient(p,Monomial(:x,:x,:y)) # coefficient on x²y
+julia> coefficient(p,Monomial_(:x=>2,:y=>1)) # coefficient on x²y
 -3
 
 julia> coefficient(p,Monomial()) # constant coefficient
@@ -837,7 +846,7 @@ function LaurentPolynomials.coefficients(p::Mvp{T,N},v::Symbol)where {T,N}
     end
     if !found  d[0]=push!(get!(d,0,empty(pairs(p))),m=>c) end
   end
-  Dict(dg=>Mvp(c...;check=false) for (dg,c) in d) # c... is sorted by defn of monomial order
+  Dict(dg=>Mvp_(c) for (dg,c) in d) # c is sorted by defn of monomial order
 end
 
 """
@@ -857,7 +866,7 @@ Mvp{Int64,Rational{Int64}}: 3y+6y½+3
 ```
 """
 function coefficient(p::Mvp,var::Symbol,d)
- res=empty(pairs(p))
+  res=empty(pairs(p))
   for (m,c) in pairs(p)
     found=false
     for (i,(v1,deg)) in enumerate(pairs(m))
@@ -870,7 +879,7 @@ function coefficient(p::Mvp,var::Symbol,d)
     end
     if d==0 && !found push!(res,m=>c) end
   end
-  Mvp(ModuleElt(res;check=false))
+  Mvp_(res)
 end
 
 """
@@ -924,7 +933,7 @@ function LaurentPolynomials.Pol(p::Mvp{T,N},var::Symbol)where{T,N}
     end
     if !found push!(res[-v+1],m=>c) end
   end
-  Pol(map(x->Mvp(ModuleElt(x;check=false)),res),v)
+  Pol(Mvp_.(res),v)
 end
 
 """
@@ -1085,7 +1094,7 @@ function value(p::Mvp,k::Pair...)
  #  println("badi=$badi m=$m c=$c res1=$res1")
   end
   if badi===nothing return p end
-  Mvp(deleteat!(copy(pairs(p)),badi)...;check=false)+res1
+  Mvp_(deleteat!(copy(pairs(p)),badi))+res1
 end
 
 (p::Mvp)(;arg...)=value(p,arg...)
@@ -1103,7 +1112,7 @@ function LaurentPolynomials.root(p::Mvp,n=2)
     throw(DomainError("root($p,$n) non-monomial not implemented")) 
   end
   (m,c)=term(p,1)
-  isone(c) ? Mvp(root(m,n)=>c;check=false) : Mvp(root(m,n)=>root(c,n))
+  isone(c) ? Mvp_(root(m,n)=>c) : Mvp_(root(m,n)=>root(c,n))
 end
 
 """
@@ -1126,10 +1135,10 @@ Base.:^(p::Mvp,m::AbstractMatrix;vars=variables(p))=
   p(;map(Pair,vars,permutedims(Mvp.(vars))*m)...)
 
 LaurentPolynomials.positive_part(p::Mvp)=
-  Mvp(ModuleElt(m=>c for (m,c) in pairs(p) if ispositive(m);check=false))
+  Mvp_(m=>c for (m,c) in pairs(p) if ispositive(m))
 
 LaurentPolynomials.negative_part(p::Mvp)=
-  Mvp(ModuleElt(m=>c for (m,c) in pairs(p) if all(<(0),powers(m));check=false))
+  Mvp_(m=>c for (m,c) in pairs(p) if all(<(0),powers(m)))
 
 LaurentPolynomials.bar(p::Mvp)=Mvp(ModuleElt(inv(m)=>c for (m,c) in pairs(p)))
 
@@ -1166,9 +1175,9 @@ Mvp{Rational{Int64},Rational{Int64}}: 0
 ```
 """
 function LaurentPolynomials.derivative(p::Mvp,vv...)
-  # check needed because 0 could appear in coeffs
   for v in vv
-    p=Mvp(ModuleElt(m*Monomial(v=>-1)=>c*degree(m,v) for (m,c) in pairs(p)))
+    # check needed because 0 could appear in coeffs
+    p=Mvp(ModuleElt(m*Monomial_(v=>-1)=>c*degree(m,v) for (m,c) in pairs(p)))
   end
   p
 end
@@ -1181,7 +1190,7 @@ function LaurentPolynomials.exactdiv(p::Mvp,q::Mvp)
   elseif iszero(p) || isone(q) return p
   elseif ismonomial(q)
     m,c=term(q,1)
-    return Mvp(ModuleElt(inv(m)*m1=>exactdiv(c1,c) for (m1,c1) in pairs(p);check=false))
+    return Mvp_(inv(m)*m1=>exactdiv(c1,c) for (m1,c1) in pairs(p))
    elseif ismonomial(p) error(q," does not exactly divide ",p)
   end 
   var=first(variables(first(monomials(p))))
@@ -1218,7 +1227,7 @@ function Base.gcd(a::Mvp,b::Mvp)
   elseif iszero(b) return a
   elseif ismonomial(a)
     (m,c)=term(a,1)
-    return Mvp(gcd(m,reduce(gcd,monomials(b)))=>gcd(c,reduce(gcd,coefficients(b)));check=false)
+    return Mvp_(gcd(m,reduce(gcd,monomials(b)))=>gcd(c,reduce(gcd,coefficients(b))))
   elseif ismonomial(b) return gcd(b,a)
   end
   va=variables(a)
@@ -1283,6 +1292,7 @@ Base.:+(a::Monomial,b::Monomial)=Mvp(a=>1,b=>1)
 Base.:+(a::Union{Mvp,Number},b::Monomial)=+(promote(a,b)...)
 Base.:+(b::Monomial,a::Union{Mvp,Number})=+(promote(a,b)...)
 Base.:-(a::Monomial,b::Monomial)=Mvp(a=>1,b=>-1)
+Base.:-(a::Monomial)=Mvp(a=>-1)
 Base.:-(a::Union{Mvp,Number},b::Monomial)=-(promote(a,b)...)
 Base.:-(b::Monomial,a::Union{Mvp,Number})=-(promote(a,b)...)
 Base.:*(b::Monomial,a::Number)=Mvp(b=>a)
@@ -1369,7 +1379,7 @@ function Base.://(a::Mvp,b::Mvp)
   if iszero(a) return a end
   if ismonomial(b) 
     (m,c)=term(b,1)
-    return Mvp(ModuleElt(m1/m=>c^2==1 ? c1*c : c1//c for (m1,c1) in pairs(a);check=false))
+    return Mvp_(m1/m=>c^2==1 ? c1*c : c1//c for (m1,c1) in pairs(a))
   end
   Frac(a,b)
 end
@@ -1378,7 +1388,7 @@ function Base.:/(a::Mvp,b::Mvp)
   if iszero(a) return a end
   if ismonomial(b) 
     (m,c)=term(b,1)
-    return Mvp(ModuleElt(m1/m=>c1/c for (m1,c1) in pairs(a);check=false))
+    return Mvp_(m1/m=>c1/c for (m1,c1) in pairs(a))
   end
   Frac(a,b)
 end
@@ -1416,8 +1426,8 @@ LT(p;lt=lex)=lt==lex ? first(pairs(p)) : fmin(pairs(p);lt)[1]
 
 # drop from p leading term for monomial order lt
 function dropLT(p;lt=lex)
-  if lt==lex return Mvp(ModuleElt(pairs(p)[2:end];check=false)) end
-  Mvp(ModuleElt(deleteat!(pairs(p),fmin(pairs(p);lt)[2]);check=false))
+  if lt==lex return Mvp_(pairs(p)[2:end]) end
+  Mvp_(deleteat!(pairs(p),fmin(pairs(p);lt)[2]))
 end
 
 # quotient of leading terms
