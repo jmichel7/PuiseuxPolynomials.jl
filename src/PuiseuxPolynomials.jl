@@ -58,13 +58,13 @@ Mvp{Int64}: 3
 term, equal to `x`.
 
 It  is convenient to create `Mvp`s using variables such as `x,y` above. The
-function  `repr`  shows  an  `Mvp`  in  a "compromise" form, which is still
-readable  but can be read back  in Julia (this is also  the way an `Mvp` is
-printed in another context than the repl, IJulia or pluto):
+functions  `repr` or `print` show an `Mvp` in a "compromise" form, which is
+still  human readable but can be read back in Julia -- this is also the way
+an `Mvp` is printed in another context than the repl, IJulia or pluto:
 
 ```julia-repl
-julia> repr(3x*y^-2+4)
-"let (x,y)=Monomial(:x,:y);3x*y^-2+4 end"
+julia> print(3x*y^-2+4)
+let (x,y)=Monomial(:x,:y);3x*y^-2+4 end
 ```
 The above output can be interpreted in 300ns. To make a database of `Mvp`s,
 a more efficient form is desirable.
@@ -75,7 +75,9 @@ julia> repr(3x*y^-2+4,context=:efficient=>true)
 ```
 The above form can be interpreted in 80ns. Here the constructor `Monomial_`
 takes pairs of a symbol and a power, and the constructor `Mvp_` takes pairs
-of a monomial and a coefficient.
+of  a monomial  and a  coefficient; these  constructors are better not used
+casually,  since the arguments *must* be  normalized (sorted by key, and no
+duplicate key).
 
 Only  monomials and one-term `Mvp`s can  be raised to a non-integral power;
 the  `Mvp` with one term constant `c`  times the monomial `m` can be raised
@@ -134,10 +136,15 @@ Monomial{Int64}:xy⁻²
 julia> length(m) # how many variables in m
 2
 
-julia> m[:x] # power of x in m, same as `degree(m,:x)`
+julia> collect(variables(m))
+2-element Vector{Symbol}:
+ :x
+ :y
+
+julia> degree(m,:x) # power of x in m
 1
 
-julia> m[:y] # power of y in m, same as `degree(m,:y)`
+julia> degree(m,:y) # power of y in m
 -2
 
 julia> map((x,y)->x=>y,variables(m),powers(m)) # same as pairs(m)
@@ -366,9 +373,11 @@ end
 Monomial(x::Symbol...)=length(x)==1 ? Monomial_(first(x)=>1)=>1 :
    map(s->Monomial_(s=>1),x)
 
-function Monomial_(a::Pair{Symbol,T}...)where T
-  Monomial(ModuleElt(a...;check=false))
-end
+Monomial(a::Pair{Symbol,T}...) where T=Monomial(ModuleElt(a...))
+
+Monomial_(a::Pair{Symbol,T}...) where T=Monomial(ModuleElt(a...;check=false))
+
+Monomial_(a::Vector{Pair{Symbol,T}}) where T=Monomial(ModuleElt(a;check=false))
 
 Monomial_()=one(Monomial{Int})
 
@@ -392,7 +401,7 @@ LaurentPolynomials.exactdiv(a::Monomial, b::Monomial)=a*inv(b)
 Base.:/(a::Monomial, b::Monomial)=a*inv(b)
 Base.://(a::Monomial, b::Monomial)=a*inv(b)
 Base.:^(x::Monomial,p)=Monomial(x.d*p)
-Base.getindex(a::Monomial,k)=getindex(a.d,k)
+#Base.getindex(a::Monomial,k)=getindex(a.d,k)
 Base.length(a::Monomial)=length(a.d)
 "`variables(a::Monomial)` iterator on the variables of `a` (a sorted list of `Symbol`s)"
 variables(a::Monomial)=keys(a.d)
@@ -407,7 +416,7 @@ Base.pairs(a::Monomial)=pairs(a.d)
 ispositive(a::Monomial)=all(>=(0),powers(a))
 
 "copy of m with pairs at i (position or vector of positions) deleted"
-deleteat(m::Monomial,i)=Monomial(ModuleElt(deleteat!(copy(pairs(m)),i);check=false))
+deleteat(m::Monomial,i)=Monomial_(deleteat!(copy(pairs(m)),i))
 
 const unicodeFrac=Dict((1,2)=>'½',(1,3)=>'⅓',(2,3)=>'⅔',
   (1,4)=>'¼',(3,4)=>'¾',(1,5)=>'⅕',(2,5)=>'⅖',(3,5)=>'⅗',
@@ -526,7 +535,7 @@ Base.lcm(v::AbstractArray{<:Monomial})=reduce(lcm,v)
 Base.hash(a::Monomial, h::UInt)=hash(a.d,h)
 
 LaurentPolynomials.degree(m::Monomial)=sum(powers(m);init=0)
-LaurentPolynomials.degree(m::Monomial,var::Symbol)=m[var]
+LaurentPolynomials.degree(m::Monomial,var::Symbol)=m.d[var]
 
 function LaurentPolynomials.root(m::Monomial,n::Integer=2)
   if all(x->iszero(x%n),powers(m)) 
@@ -547,6 +556,7 @@ end
 Mvp_(a::Pair{Monomial{N},T}...) where {N,T}=Mvp(ModuleElt(a...;check=false))
 Mvp_(a::Base.Generator)=Mvp(ModuleElt(a;check=false))
 Mvp_(a::Vector{Pair{Monomial{N},T}}) where {N,T}=Mvp(ModuleElt(a;check=false))
+Mvp_()=zero(Mvp{Int,Int})
 
 function Mvp(a::Union{Pair,Monomial}...)# convenient but slow
   a=promote(map(x->x isa Monomial ? x=>1 : x,a)...)
@@ -598,12 +608,15 @@ function Base.show(io::IO, p::Mvp)
     print(io,")")
   else
     v=variables(p)
-    print(io,"let ",length(v)==1 ? v[1] : "("*join(v,",")*")","=")
-    print(io,"Monomial","(",join(repr.(v),","),");")
-    if length(p)==1 && isone(last(term(p,1))) print(io,"Mvp(") end
+    if length(v)>0
+      print(io,"let ",length(v)==1 ? v[1] : "("*join(v,",")*")","=")
+      print(io,"Monomial","(",join(repr.(v),","),");")
+    end
+    needMvp=iszero(p) || (length(p)==1 && isone(last(term(p,1)))) 
+    if needMvp  print(io,"Mvp(") end
     show(IOContext(io,:limit=>true,:showbasis=>(io,s)->repr(s)),p.d)
-    if length(p)==1 && isone(last(term(p,1))) print(io,")") end
-    print(io," end")
+    if needMvp  print(io,")") end
+    if length(v)>0 print(io," end") end
   end
 end
 
@@ -694,7 +707,8 @@ end
 Base.:/(p::Mvp,q::Number)=Mvp(p.d/q)
 Base.://(p::Mvp,q::Number)=Mvp(p.d//q)
 Base.div(a::Mvp,b::Number)=Mvp(merge(div,a.d,b))
-LaurentPolynomials.exactdiv(a::Mvp,b::Number)=Mvp(merge(exactdiv,a.d,b))
+LaurentPolynomials.exactdiv(m::ModuleElt,b)=merge(exactdiv,m,b)
+LaurentPolynomials.exactdiv(a::Mvp,b::Number)=Mvp(exactdiv(a.d,b))
 
 """
 `conj(p::Mvp)` acts on the coefficients of `p`
@@ -767,7 +781,7 @@ The coefficient of the polynomial `p` on the monomial `m`.
 julia> @Mvp x,y; p=(x-y)^3
 Mvp{Int64}: x³-3x²y+3xy²-y³
 
-julia> coefficient(p,Monomial_(:x=>2,:y=>1)) # coefficient on x²y
+julia> coefficient(p,Monomial(:x=>2,:y=>1)) # coefficient on x²y
 -3
 
 julia> coefficient(p,Monomial()) # constant coefficient
