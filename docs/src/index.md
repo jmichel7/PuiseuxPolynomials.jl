@@ -11,7 +11,7 @@ Mvp(p::Symbol)
 valuation
 degree
 variables
-LaurentPolynomials.coefficients(::Mvp,::Symbol)
+LaurentPolynomials.coefficients(p::Mvp{T,N},v::Symbol) where {T, N}
 LaurentPolynomials.coefficients(::Mvp)
 coefficient
 Monomial
