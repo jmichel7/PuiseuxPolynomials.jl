@@ -584,6 +584,8 @@ function Base.show(io::IO, ::MIME"text/plain", a::Mvp{T,N}) where{T,N}
   show(io,a)
 end
 
+ismonomial(x::Mvp)=length(x)==1 && isone(last(term(x,1))) # a non-zero monomial
+
 function Base.show(io::IO, p::Mvp)
   if get(io,:limit,false) || get(io,:TeX,false)
     show(IOContext(io,:showbasis=>nothing),p.d)
@@ -594,14 +596,16 @@ function Base.show(io::IO, p::Mvp)
     print(io,")")
   else
     v=variables(p)
-    if length(v)>0
-      print(io,"let ",length(v)==1 ? v[1] : "("*join(v,",")*")","=")
-      print(io,"Monomial","(",join(repr.(v),","),");")
-    else
-      print(io,"Mvp(",scalar(p),")")
+    if isempty(v) print(io,"Mvp(",scalar(p),")");return end
+    if length(p)==1
+      m,c=term(p,1)
+      print(io,isone(c)&&length(v)>1 ? c : 
+         ModuleElts.format_coefficient(repr(c,context=io)), length(v)==1 ? 
+         "Mvp("*repr(only(v))*")" : repr(m,context=:efficient=>true))
       return
     end
-    if ismonomial(p) && isone(last(term(p,1))) print(io,"1") end
+    print(io,"let ",length(v)==1 ? v[1] : "("*join(v,",")*")","=")
+    print(io,"Monomial","(",join(repr.(v),","),");")
     show(IOContext(io,:limit=>true,:showbasis=>(io,s)->repr(s)),p.d)
     if length(v)>0 print(io," end") end
   end
@@ -609,14 +613,13 @@ end
 
 Base.length(x::Mvp)=length(x.d)
 term(x::Mvp,i)=pairs(x)[i]
-ismonomial(x::Mvp)=length(x)==1 # x is a non-zero monomial
 Base.zero(p::Mvp)=Mvp(zero(p.d))
 Base.zero(::Type{Mvp{T,N}}) where {T,N}=Mvp(zero(ModuleElt{Monomial{N},T}))
 Base.one(::Type{Mvp{T,N}}) where {T,N}=Mvp_(one(Monomial{N})=>one(T))
 Base.one(::Type{Mvp{T}}) where T=one(Mvp{T,Int})
 Base.one(::Type{Mvp})=Mvp(1)
 Base.one(p::Mvp{T,N}) where {T,N}=iszero(p) ? one(Mvp{T,N}) : Mvp_(one(Monomial{N})=>one(first(coefficients(p))))
-Base.isone(x::Mvp)=ismonomial(x) && isone(first(term(x,1)))&&isone(last(term(x,1)))
+Base.isone(x::Mvp)=ismonomial(x) && isone(first(term(x,1)))
 Base.copy(p::Mvp)=Mvp(copy(p.d))
 Base.iszero(p::Mvp)=iszero(p.d)
 Base.convert(::Type{Mvp},a::Number)=convert(Mvp{typeof(a),Int},a)
@@ -680,7 +683,7 @@ function Base.:*(a::Mvp, b::Mvp)
   elseif isone(b) return a
   end
   let b=b # needed !!!!
-    sum(b*m*c for (m,c) in pairs(a))
+    sum(Mvp_(m1*m=>c1*c for (m1,c1) in pairs(b)) for (m,c) in pairs(a))
   end
 end
 
@@ -705,7 +708,7 @@ function Base.:^(x::Mvp, p::Union{Integer,Rational})
   if iszero(p) return one(x)
   elseif iszero(x) || isone(p) return x
   elseif p isa Rational return root(x,denominator(p))^numerator(p) 
-  elseif ismonomial(x) 
+  elseif length(x)==1
    (m,c)=term(x,1);return isone(c) ? Mvp_(m^p=>c) : Mvp_(m^p=>c^p)
   elseif p>=0 return Base.power_by_squaring(x,p) 
   else return Base.power_by_squaring(inv(x),-p)
@@ -1001,7 +1004,7 @@ if it contains any `Mvp` which is not a scalar.
 """
 function LaurentPolynomials.scalar(p::Mvp{T})where T
   if iszero(p) return zero(T) end
-  if ismonomial(p)
+  if length(p)==1
     (m,c)=term(p,1)
     if isone(m) return c end
   end
@@ -1111,7 +1114,7 @@ end
 function LaurentPolynomials.root(p::Mvp,n=2)
   if iszero(p) return p end
   n=Int(n)
-  if !ismonomial(p)
+  if length(p)!=1
     throw(DomainError("root($p,$n) non-monomial not implemented")) 
   end
   (m,c)=term(p,1)
@@ -1191,10 +1194,10 @@ function LaurentPolynomials.exactdiv(p::Mvp,q::Mvp)
   if isone(q) return p end
   if iszero(q) error("cannot divide by 0")
   elseif iszero(p) || isone(q) return p
-  elseif ismonomial(q)
+  elseif length(q)==1
     m,c=term(q,1)
     return Mvp_(inv(m)*m1=>exactdiv(c1,c) for (m1,c1) in pairs(p))
-   elseif ismonomial(p) error(q," does not exactly divide ",p)
+   elseif length(p)==1 error(q," does not exactly divide ",p)
   end 
   var=first(variables(first(monomials(p))))
   res=zero(p)
@@ -1228,10 +1231,10 @@ Mvp{Int64}: x+y
 function Base.gcd(a::Mvp,b::Mvp)
   if iszero(a) return b
   elseif iszero(b) return a
-  elseif ismonomial(a)
+  elseif length(a)==1
     (m,c)=term(a,1)
     return Mvp_(gcd(m,reduce(gcd,monomials(b)))=>gcd(c,reduce(gcd,coefficients(b))))
-  elseif ismonomial(b) return gcd(b,a)
+  elseif length(b)==1 return gcd(b,a)
   end
   va=variables(a)
   vb=variables(b)
@@ -1321,7 +1324,7 @@ function LaurentPolynomials.Frac(a::T,b::T;pol=false,prime=false)::Frac{T} where
   if !pol
     (a,b)=make_positive(a,b)
   end
-  if !prime && !ismonomial(b) && !ismonomial(a)
+  if !prime && length(b)!=1 && length(a)!=1
     d=gcd(a,b)
     a,b=exactdiv(a,d),exactdiv(b,d)
   end
@@ -1337,7 +1340,7 @@ end
 
 function Mvp(p::Frac{<:Mvp})
   if isone(p.den) return p.num
-  elseif ismonomial(p.den) 
+  elseif length(p.den)==1
     (m,c)=term(p.den,1)
     return p.num*inv(m)*inv(c)
   end
@@ -1368,7 +1371,7 @@ function Base.promote_rule(a::Type{T1},b::Type{Frac{T2}})where {T1<:Number,T2<:M
 end
 
 function Base.inv(p::Mvp)
-  if ismonomial(p)
+  if length(p)==1
     (m,c)=term(p,1)
     return Mvp_(inv(m)=>c^2==1 ? c : 1/c) 
   end
@@ -1377,7 +1380,7 @@ end
 
 function Base.://(a::Mvp,b::Mvp)
   if iszero(a) return a end
-  if ismonomial(b) 
+  if length(b)==1
     (m,c)=term(b,1)
     return Mvp_(m1/m=>c^2==1 ? c1*c : c1//c for (m1,c1) in pairs(a))
   end
@@ -1386,7 +1389,7 @@ end
 
 function Base.:/(a::Mvp,b::Mvp)
   if iszero(a) return a end
-  if ismonomial(b) 
+  if length(b)==1
     (m,c)=term(b,1)
     return Mvp_(m1/m=>c1/c for (m1,c1) in pairs(a))
   end
