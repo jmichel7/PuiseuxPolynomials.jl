@@ -956,7 +956,7 @@ function Mvp(p::Pol,v=LaurentPolynomials.varname[])
 end
 
 Base.convert(::Type{Mvp{T,N}},p::Pol) where{T,N}=
-            p(Mvp(convert(Monomial{N},LaurentPolynomials.varname[])=>one(T)))
+            p(Mvp_(convert(Monomial{N},LaurentPolynomials.varname[])=>one(T)))
 Base.convert(::Type{Mvp},p::Pol)=Mvp(p)
 
 """
