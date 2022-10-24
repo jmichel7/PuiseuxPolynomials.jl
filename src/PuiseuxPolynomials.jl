@@ -1324,9 +1324,10 @@ function LaurentPolynomials.Frac(a::T,b::T;pol=false,prime=false)::Frac{T} where
   if !pol
     (a,b)=make_positive(a,b)
   end
-  if !prime && length(b)!=1 && length(a)!=1
+  if !prime
     d=gcd(a,b)
-    a,b=exactdiv(a,d),exactdiv(b,d)
+    a=exactdiv(a,d)
+    b=exactdiv(b,d)
   end
   if scalar(b)==-1 a,b=(-a,-b) end
   return LaurentPolynomials.Frac_(a,b)
@@ -1338,11 +1339,10 @@ function LaurentPolynomials.Frac(a::Mvp{<:Rational,Int},b::Mvp{<:Rational,Int};k
   Frac(numerator(a)*denominator(b),numerator(b)*denominator(a);k...)
 end
 
-function Mvp(p::Frac{<:Mvp})
-  if isone(p.den) return p.num
-  elseif length(p.den)==1
+function Mvp(p::Frac{<:Mvp};Rational=false)
+  if length(p.den)==1
     (m,c)=term(p.den,1)
-    return p.num*inv(m)*inv(c)
+    return p.num*inv(m)*(c^2==1 ? c : Rational ? 1//c : inv(c))
   end
   error("cannot convert ",p," to Mvp")
 end
@@ -1585,6 +1585,6 @@ function fateman(n)
   length(f*(f+1))
 end
 
-#julia1.8.0> @btime inv(Frac.([x+y x-y;x+1 y+1])) setup=(x,y=Mvp(:x,:y))
+#julia1.8.0> @btime inv(Frac.([x+y x-y;x+1 y+1])) setup=((x,y)=Mvp(:x,:y))
 # 139.657 μs (3284 allocations: 235.44 KiB)
 end
