@@ -548,7 +548,7 @@ Mvp()=zero(Mvp{Int,Int}) # for some calls to map() to work
 """
 Mvp(x::Symbol...)=length(x)==1 ? Mvp_(Monomial_(first(x)=>1)=>1) : 
                           map(s->Mvp_(Monomial_(s=>1)=>1),x)
-Mvp(x::Mvp)=x
+Mvp(x::Mvp;k...)=x
 Mvp(x::Monomial)=Mvp_(x=>1)
 
 """
@@ -1347,7 +1347,7 @@ function Mvp(p::Frac{<:Mvp};Rational=false)
   error("cannot convert ",p," to Mvp")
 end
 
-Base.convert(::Type{Mvp{T,Int}},p::Frac{<:Mvp}) where T=convert(Mvp{T,Int},Mvp(p))
+Base.convert(::Type{Mvp{T,E}},p::Frac{<:Mvp}) where {T,E}=convert(Mvp{T,E},Mvp(p))
 
 function Base.convert(::Type{Frac{T}},p::Mvp) where T<:Mvp
   q=convert(T,p)
