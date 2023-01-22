@@ -241,7 +241,7 @@ One  can divide an `Mvp` by another when the division is exact, compute the
 `gcd` and `lcm` of two `Mvp`.
 
 ```julia-repl
-julia> exactdiv(x^2-y^2,x-y) # errors if the division is not exact
+julia> LinearAlgebra.exactdiv(x^2-y^2,x-y) # errors if the division is not exact
 Mvp{Int64}: x+y
 
 julia> (x+y)/(2x^2)   # divide by a monomial
@@ -343,6 +343,7 @@ According to the Nemo paper, Sagemath takes 10sec and Nemo takes 1.6sec.
 """
 module PuiseuxPolynomials
 using ModuleElts, Reexport
+using LinearAlgebra:LinearAlgebra, exactdiv
 @reexport using LaurentPolynomials
 export coefficient, monomials, powers
 export Mvp, Mvp_, Monomial, Monomial_, @Mvp, variables, value, 
@@ -381,7 +382,7 @@ Base.isone(a::Monomial)=iszero(a.d)
 Base.one(::Type{Monomial{T}}) where T=Monomial(zero(ModuleElt{Symbol,T}))
 Base.one(m::Monomial)=Monomial(zero(m.d))
 Base.inv(a::Monomial)=Monomial(-a.d)
-LaurentPolynomials.exactdiv(a::Monomial, b::Monomial)=a*inv(b)
+LinearAlgebra.exactdiv(a::Monomial, b::Monomial)=a*inv(b)
 Base.:/(a::Monomial, b::Monomial)=a*inv(b)
 Base.://(a::Monomial, b::Monomial)=a*inv(b)
 Base.:^(x::Monomial,p)=Monomial(x.d*p)
@@ -690,8 +691,8 @@ end
 Base.:/(p::Mvp,q::Number)=Mvp(p.d/q)
 Base.://(p::Mvp,q::Number)=Mvp(p.d//q)
 Base.div(a::Mvp,b::Number)=Mvp(merge(div,a.d,b))
-LaurentPolynomials.exactdiv(m::ModuleElt,b)=merge(exactdiv,m,b)
-LaurentPolynomials.exactdiv(a::Mvp,b::Number)=Mvp(exactdiv(a.d,b))
+LinearAlgebra.exactdiv(m::ModuleElt,b)=merge(exactdiv,m,b)
+LinearAlgebra.exactdiv(a::Mvp,b::Number)=Mvp(exactdiv(a.d,b))
 
 """
 `conj(p::Mvp)` acts on the coefficients of `p`
@@ -1190,14 +1191,14 @@ end
 
 # returns p/q when the division is exact, nothing otherwise
 # Arguments must be true polynomials
-function LaurentPolynomials.exactdiv(p::Mvp,q::Mvp)
+function LinearAlgebra.exactdiv(p::Mvp,q::Mvp)
   if isone(q) return p end
   if iszero(q) error("cannot divide by 0")
   elseif iszero(p) || isone(q) return p
   elseif length(q)==1
     m,c=term(q,1)
     return Mvp_(inv(m)*m1=>exactdiv(c1,c) for (m1,c1) in pairs(p))
-   elseif length(p)==1 error(q," does not exactly divide ",p)
+  elseif length(p)==1 error(q," does not exactly divide ",p)
   end 
   var=first(variables(first(monomials(p))))
   res=zero(p)
@@ -1326,8 +1327,7 @@ function LaurentPolynomials.Frac(a::T,b::T;pol=false,prime=false)::Frac{T} where
   end
   if !prime
     d=gcd(a,b)
-    a=exactdiv(a,d)
-    b=exactdiv(b,d)
+    a,b=exactdiv(a,d),exactdiv(b,d)
   end
   if scalar(b)==-1 a,b=(-a,-b) end
   return LaurentPolynomials.Frac_(a,b)

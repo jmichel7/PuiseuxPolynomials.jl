@@ -1,5 +1,6 @@
 # auto-generated tests from julia-repl docstrings
 using Test, PuiseuxPolynomials
+using LinearAlgebra:exactdiv
 function mytest(f::String,a::String,b::String)
   println(f," ",a)
   omit=a[end]==';'
