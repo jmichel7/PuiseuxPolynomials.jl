@@ -54,26 +54,16 @@ julia> Mvp(3)  # convert a number to an Mvp with only a constant term
 Mvp{Int64}: 3
 ```
 It  is convenient to create `Mvp`s using variables such as `x,y` above. The
-functions  `repr` or `print` show an `Mvp` in a "compromise" form, which is
-still  human readable but can be read back in Julia -- this is also the way
-an `Mvp` is printed in another context than the repl, IJulia or pluto:
+functions  `repr` or `print` show an `Mvp` in a form which can be read back
+in  Julia -- this  is also the  way an `Mvp`  is printed in another context
+than the repl, IJulia or pluto:
 
 ```julia-repl
-julia> print(3x*y^-2+4)
-let (x,y)=Monomial(:x,:y);3x*y^-2+4 end
+julia> repr(3x*y^-2+4)
+"Mvp{Int64, Int64}([:x=>1,:y=>-2]=>3,[]=>4)"
 ```
-The above output can be interpreted in 300ns. To make a database of `Mvp`s,
-a more efficient form is desirable.
-
-```julia-repl
-julia> repr(3x*y^-2+4,context=:efficient=>true)
-"Mvp_(Monomial_(:x => 1, :y => -2) => 3, Monomial_() => 4)"
-```
-The above form can be interpreted in 80ns. Here the constructor `Monomial_`
-takes pairs of a symbol and a power, and the constructor `Mvp_` takes pairs
-of  a monomial  and a  coefficient; these  constructors are better not used
-casually,  since the arguments *must* be  normalized (sorted by key, and no
-duplicate key).
+It  is better not to use this  form casually, since the arguments *must* be
+normalized (sorted by key, and no duplicate key).
 
 Only  monomials and one-term `Mvp`s can  be raised to a non-integral power;
 the  `Mvp` with one term constant `c`  times the monomial `m` can be raised
@@ -591,25 +581,26 @@ function Base.show(io::IO, p::Mvp)
   if get(io,:limit,false) || get(io,:TeX,false)
     show(IOContext(io,:showbasis=>nothing),p.d)
     # :showbasis=>nothing necessary if called when already showing a ModuleElt
+  elseif length(p)==0 print(io,typeof(p),"(0)")
   elseif get(io,:efficient,false)
     print(io,"Mvp_(")
     join(io,pairs(p),", ")
     print(io,")")
   else
-    v=variables(p)
-    if isempty(v) print(io,"Mvp(",scalar(p),")");return end
-    if length(p)==1
-      m,c=term(p,1)
-      print(io,isone(c)&&length(v)>1 ? c : 
-         ModuleElts.format_coefficient(repr(c,context=io)), length(v)==1 ? 
-         "Mvp("*repr(only(v))*")" : repr(m,context=:efficient=>true))
-      return
+    print(io,typeof(p),"(")
+    io=IOContext(io,:typeinfo=>eltype(p))
+    for i in 1:length(p)
+      m,c=term(p,i)
+      print(io,"[")
+      join(io,map(((s,j),)->repr(s)*string("=>",j),pairs(m.d)),",")
+      print(io,"]=>",c)
+      if i!=length(p) print(io,",") else print(io,")") end
     end
-    print(io,"let ",length(v)==1 ? v[1] : "("*join(v,",")*")","=")
-    print(io,"Monomial","(",join(repr.(v),","),");")
-    show(IOContext(io,:limit=>true,:showbasis=>(io,s)->repr(s)),p.d)
-    if length(v)>0 print(io," end") end
   end
+end
+
+function Mvp{T,M}(v::Pair...) where{T,M}
+ Mvp(ModuleElt(Monomial(ModuleElt(Vector{Pair{Symbol,M}}(m);check=false))=>T(c) for (m,c) in v;check=false))
 end
 
 Base.length(x::Mvp)=length(x.d)
@@ -765,7 +756,7 @@ The coefficient of the polynomial `p` on the monomial `m`.
 julia> @Mvp x,y; p=(x-y)^3
 Mvp{Int64}: x³-3x²y+3xy²-y³
 
-julia> coefficient(p,Monomial(:x=>2,:y=>1)) # coefficient on x²y
+julia> coefficient(p,Monomial_(:x=>2,:y=>1)) # coefficient on x²y
 -3
 
 julia> coefficient(p,Monomial()) # constant coefficient
