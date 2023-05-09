@@ -1332,6 +1332,7 @@ end
 
 function Mvp(p::Frac{<:Mvp};Rational=false)
   if length(p.den)==1
+    if isone(p.den) return p.num end
     (m,c)=term(p.den,1)
     return p.num*inv(m)*(c^2==1 ? c : Rational ? 1//c : inv(c))
   end
