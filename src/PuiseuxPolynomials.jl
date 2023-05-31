@@ -1004,7 +1004,7 @@ end
 
 function LaurentPolynomials.scalar(m::AbstractArray)
   p=scalar.(m)
-  if !any(isnothing,p) return nothing end
+  if !any(isnothing,p) return p end
 end
 
 """
