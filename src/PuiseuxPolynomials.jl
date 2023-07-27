@@ -1319,16 +1319,13 @@ function LaurentPolynomials.Frac(a::T,b::T;pol=false,prime=false)::Frac{T} where
   if !prime
     d=gcd(a,b)
     a,b=exactdiv(a,d),exactdiv(b,d)
+    a,b=promote(a,b)
   end
   if scalar(b)==-1 a,b=(-a,-b) end
-  return LaurentPolynomials.Frac_(a,b)
+  LaurentPolynomials.Frac_(a,b)
 end
 
 LaurentPolynomials.Frac(a::Mvp)=Frac(a,one(a);prime=true)
-
-function LaurentPolynomials.Frac(a::Mvp{<:Rational,Int},b::Mvp{<:Rational,Int};k...)
-  Frac(numerator(a)*denominator(b),numerator(b)*denominator(a);k...)
-end
 
 function Mvp(p::Frac{<:Mvp};Rational=false)
   if length(p.den)==1
@@ -1350,6 +1347,12 @@ function Base.convert(::Type{Frac{T}},p::Number) where T<:Mvp
   Frac(convert(T,p),convert(T,1);pol=true,prime=true)
 end
 
+function Base.convert(::Type{Frac{Mvp{T,Int}}},a::Frac{<:Mvp{<:Rational{T},Int}}) where T<:Integer
+  n=numerator(a)
+  d=denominator(a)
+  Frac(numerator(n)*denominator(d),numerator(d)*denominator(n))
+end
+  
 function Base.promote_rule(a::Type{T1},b::Type{Frac{T2}})where {T1<:Mvp,T2<:Mvp}
   Frac{promote_type(T1,T2)}
 end
