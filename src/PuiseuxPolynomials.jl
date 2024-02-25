@@ -950,14 +950,14 @@ julia> Mvp(q^2+q,:x)
 Mvp{Int64}: x²+x
 ```
 """
-function Mvp(p::Pol,v=LaurentPolynomials.varname[])
+function Mvp(p::Pol,v=LaurentPolynomials.varname)
   res=[(i==0 ? Monomial() : Monomial_(v=>i))=>p[i]  for i in
        valuation(p):degree(p) if p[i]!=0]
   Mvp(ModuleElt(res))
 end
 
 Base.convert(::Type{Mvp{T,N}},p::Pol) where{T,N}=
-            p(Mvp_(convert(Monomial{N},LaurentPolynomials.varname[])=>one(T)))
+            p(Mvp_(convert(Monomial{N},LaurentPolynomials.varname)=>one(T)))
 Base.convert(::Type{Mvp},p::Pol)=Mvp(p)
 
 """
