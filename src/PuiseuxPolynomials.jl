@@ -682,7 +682,6 @@ end
 Base.:/(p::Mvp,q::Number)=Mvp(p.d/q)
 Base.://(p::Mvp,q::Number)=Mvp(p.d//q)
 Base.div(a::Mvp,b::Number)=Mvp(merge(div,a.d,b))
-LinearAlgebra.exactdiv(m::ModuleElt,b)=merge(exactdiv,m,b)
 LinearAlgebra.exactdiv(a::Mvp,b::Number)=Mvp(exactdiv(a.d,b))
 
 """
