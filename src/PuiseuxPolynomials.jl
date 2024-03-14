@@ -500,11 +500,11 @@ we  use the  "lex" ordering.
 Base.:(==)(a::Monomial, b::Monomial)=pairs(a)==pairs(b)
 
 #monomial d of greatest degree in each variable such that (m/d,n/d) positive
-Base.gcd(m::Monomial,n::Monomial)=Monomial(ModuleElts.merge2(min,m.d,n.d))
+Base.gcd(m::Monomial,n::Monomial)=Monomial(min(m.d,n.d))
 Base.gcd(v::AbstractArray{<:Monomial})=reduce(gcd,v)
 
 #monomial l of smallest degree in each variable such that (l/m,l/n) positive
-Base.lcm(m::Monomial,n::Monomial)=Monomial(ModuleElts.merge2(max,m.d,n.d))
+Base.lcm(m::Monomial,n::Monomial)=Monomial(max(m.d,n.d))
 Base.lcm(v::AbstractArray{<:Monomial})=reduce(lcm,v)
 
 Base.hash(a::Monomial, h::UInt)=hash(a.d,h)
@@ -681,7 +681,7 @@ end
 
 Base.:/(p::Mvp,q::Number)=Mvp(p.d/q)
 Base.://(p::Mvp,q::Number)=Mvp(p.d//q)
-Base.div(a::Mvp,b::Number)=Mvp(merge(div,a.d,b))
+Base.div(a::Mvp,b::Number)=Mvp(div(a.d,b))
 LinearAlgebra.exactdiv(a::Mvp,b::Number)=Mvp(exactdiv(a.d,b))
 
 """
@@ -692,7 +692,7 @@ julia> @Mvp x;conj(im*x+1)
 Mvp{Complex{Int64}}: (0 - 1im)x+1 + 0im
 ```
 """
-Base.conj(a::Mvp)=Mvp(merge(conj,a.d))
+Base.conj(a::Mvp)=Mvp(conj(a.d))
 
 function Base.:^(x::Mvp, p::Union{Integer,Rational})
   if isinteger(p) p=Int(p) end
