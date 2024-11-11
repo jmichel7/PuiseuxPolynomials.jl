@@ -336,7 +336,7 @@ using ModuleElts, Reexport
 using LinearAlgebra:LinearAlgebra, exactdiv
 @reexport using LaurentPolynomials
 export coefficient, monomials, powers
-export Mvp, Mvp_, Monomial, Monomial_, @Mvp, variables, value, 
+export Mvp, Mvp_, Monomial, Monomial_, @Mvp, @Monomial, variables, value, 
        laurent_denominator, term,
        lex, grlex, grevlex, grobner_basis, rename_variables, ispositive
 #------------------ Monomials ---------------------------------------------
@@ -349,8 +349,7 @@ struct Monomial{T} # T is Int or Rational{Int}
   d::ModuleElt{Symbol,T}   
 end
 
-Monomial(x::Symbol...)=length(x)==1 ? Monomial_(first(x)=>1) :
-   map(s->Monomial_(s=>1),x)
+Monomial(x::Symbol...)=length(x)==1 ? Monomial_(first(x)=>1) : Monomial_.(x.=>1)
 Monomial()=one(Monomial{Int})
 
 # using Base.vect since collect does not do the same
@@ -545,8 +544,8 @@ Mvp(x::Monomial)=Mvp_(x=>1)
 """
  `@Mvp x,y`
 
- is  equivalent to `x=Mvp(:x);y=Mvp(:y)`  excepted it creates  `x,y` in the
- global scope of the current module, since it uses `eval`.
+is  equivalent to  `(x,y)=Mvp(:x,:y)` excepted  it creates  `x,y` in the
+global scope of the current module, since it uses `eval`.
 """
 macro Mvp(t)
   if t isa Expr
@@ -555,6 +554,22 @@ macro Mvp(t)
     end
   elseif t isa Symbol
     Base.eval(Main,:($t=Mvp($(Core.QuoteNode(t)))))
+  end
+end
+
+"""
+ `@Monomial x,y`
+
+is  equivalent to `(x,y)=Monomial(:x,:y)` excepted  it creates `x,y` in the
+global scope of the current module, since it uses `eval`.
+"""
+macro Monomial(t)
+  if t isa Expr
+    for v in t.args
+      Base.eval(Main,:($v=Monomial($(Core.QuoteNode(Symbol(v))))))
+    end
+  elseif t isa Symbol
+    Base.eval(Main,:($t=Monomial($(Core.QuoteNode(t)))))
   end
 end
 
@@ -665,6 +680,8 @@ Base.:*(b::Mvp, a::Number)=a*b
 # we have a monomial order so we can use Mvp_
 Base.:*(a::Monomial, b::Mvp)=Mvp_(m*a=>c for (m,c) in pairs(b))
 Base.:*(b::Mvp,a::Monomial)=a*b
+Base.:/(a::Mvp, b::Monomial)=Mvp_(m/b=>c for (m,c) in pairs(a))
+Base.://(a::Mvp, b::Monomial)=Mvp_(m//b=>c for (m,c) in pairs(a))
 
 function Base.:*(a::Mvp, b::Mvp)
   if length(a)>length(b) a,b=(b,a) end
@@ -1417,7 +1434,8 @@ value(p::Frac{<:Mvp},k::Pair...;Rational=false)=Rational ?
 #--------------------  Grobner bases -------------------------------------
 # the reference is Cox, Little, O'Shea chapter 2
 
-# minimum term and its index for monomial order lt
+# if given a vector of monomial=>coeff return a tuple of
+# minimum term and its index (using monomial order lt)
 # findmin does not have the keywords lt and by so I must spin my own
 function fmin(l;lt=lex,by=first) 
   res=(first(l),1)
@@ -1433,7 +1451,7 @@ LT(p;lt=lex)=lt==lex ? first(pairs(p)) : fmin(pairs(p);lt)[1]
 # drop from p leading term for monomial order lt
 function dropLT(p;lt=lex)
   if lt==lex return Mvp_(pairs(p)[2:end]) end
-  Mvp_(deleteat!(pairs(p),fmin(pairs(p);lt)[2]))
+  Mvp_(deleteat!(copy(pairs(p)),fmin(pairs(p);lt)[2]))
 end
 
 # quotient of leading terms
@@ -1502,29 +1520,29 @@ julia> @Mvp x,y,z; F=[x^2+y^2+z^2-1,x^2-y+z^2,x-z]
  x-z
 
 julia> grobner_basis(F)
-3-element Vector{Mvp{Int64, Int64}}:
- x-z
- -y+2z²
- 4z⁴+2z²-1
+3-element Vector{Mvp{Rational{Int64}, Int64}}:
+ (1//1)x+(-1//1)z
+ (-1//1)y+(2//1)z²
+ (4//1)z⁴+(2//1)z²-1//1
 
 julia> grobner_basis(F;lt=grlex)
-3-element Vector{Mvp{Int64, Int64}}:
- x-z
- y²+y-1
- -y+2z²
+3-element Vector{Mvp{Rational{Int64}, Int64}}:
+ (1//1)x+(-1//1)z
+ (1//1)y²+(1//1)y-1//1
+ (-1//1)y+(2//1)z²
 
 julia> grobner_basis(F;lt=grevlex)
-3-element Vector{Mvp{Int64, Int64}}:
- x-z
- y²+y-1
- 2x²-y
+3-element Vector{Mvp{Rational{Int64}, Int64}}:
+ (1//1)x+(-1//1)z
+ (1//1)y²+(1//1)y-1//1
+ (2//1)x²+(-1//1)y
 ```
 There is no keyword to change the ordering of the variables. We suggest
 to use `rename_variables` for this purpose.
 """
 function grobner_basis(F;lt=lex)
 # Cox-Little-O'Shea Th. 9 §10 chap.2
-  F=copy(F)
+  F=copy(F)*1//1
   B=[(i,j) for j in 1:length(F) for i in 1:j-1]
   t=length(F)
   while !isempty(B)
@@ -1543,6 +1561,7 @@ function grobner_basis(F;lt=lex)
       push!(F,r)
       append!(B,tuple.(1:t-1,t))
     end
+#   println(IOContext(stdout,:limit=>true),"F=",F)
   end
   reduce_basis(F;lt)
 end

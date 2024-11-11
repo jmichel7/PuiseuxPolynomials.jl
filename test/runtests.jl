@@ -1,22 +1,16 @@
 # auto-generated tests from julia-repl docstrings
 using Test, PuiseuxPolynomials
 using LinearAlgebra: LinearAlgebra, exactdiv
-function mytest(f::String,a::String,b::String)
-  println(f," ",a)
-  omit=a[end]==';'
-  a=replace(a,"\\\\"=>"\\")
-  a=repr(MIME("text/plain"),eval(Meta.parse(a)),context=:limit=>true)
-  if omit a="nothing" end
-  a=replace(a,r" *(\n|$)"s=>s"\1")
-  a=replace(a,r"\n$"s=>"")
-  b=replace(b,r" *(\n|$)"s=>s"\1")
-  b=replace(b,r"\n$"s=>"")
-  i=1
-  while i<=lastindex(a) && i<=lastindex(b) && a[i]==b[i]
-    i=nextind(a,i)
-  end
-  if a!=b print("exec=$(repr(a[i:end]))\nmanl=$(repr(b[i:end]))\n") end
-  a==b
+function mytest(file::String,cmd::String,man::String)
+  println(file," ",cmd)
+  exec=repr(MIME("text/plain"),eval(Meta.parse(cmd)),context=:limit=>true)
+  if endswith(cmd,";") return true end
+  exec=replace(exec,r"\s*$"m=>""); exec=replace(exec,r"\s*$"s=>"")
+  exec=replace(exec,r"^\s*"=>"")
+  if exec==man return true end
+  i=findfirst(i->i<=lastindex(man) && exec[i]!=man[i],collect(eachindex(exec)))
+  print("exec=$(repr(exec[i:end]))\nmanl=$(repr(man[i:end]))\n")
+  false
 end
 @testset verbose = true "Gapjm" begin
 @testset "PuiseuxPolynomials.jl" begin
@@ -31,7 +25,7 @@ end
 @test mytest("PuiseuxPolynomials.jl","root(2.0x)","Mvp{Float64,Rational{Int64}}: 1.4142135623730951x½")
 @test mytest("PuiseuxPolynomials.jl","p=3x*y^-2+4","Mvp{Int64}: 3xy⁻²+4")
 @test mytest("PuiseuxPolynomials.jl","term(p,1)","xy⁻² => 3")
-@test mytest("PuiseuxPolynomials.jl","term(p,2)"," => 4")
+@test mytest("PuiseuxPolynomials.jl","term(p,2)","=> 4")
 @test mytest("PuiseuxPolynomials.jl","length(p)","2")
 @test mytest("PuiseuxPolynomials.jl","term.(p,1:length(p))","2-element Vector{Pair{Monomial{Int64}, Int64}}:\n xy⁻² => 3\n      => 4")
 @test mytest("PuiseuxPolynomials.jl","last(term(p,1))","3")
@@ -83,6 +77,8 @@ end
 @test mytest("PuiseuxPolynomials.jl","coefficients(p,:y)","Dict{Int64, Mvp{Int64, Int64}} with 9 entries:\n  0  => x⁴+12x²+6\n  4  => 1\n  -1 => 4x³+12x\n  2  => 6x²+4\n  -3 => 4x\n  -2 => 6x²+4\n  -4 => 1\n  3  => 4x\n  1  => 4x³+12x")
 @test mytest("PuiseuxPolynomials.jl","p=(x+y^(1//2))^3","Mvp{Int64,Rational{Int64}}: x³+3x²y½+3xy+y³⁄₂")
 @test mytest("PuiseuxPolynomials.jl","Pol(:q); Pol(p,:x)","Pol{Mvp{Int64, Rational{Int64}}}: q³+3y½q²+3yq+y³⁄₂")
+@test mytest("PuiseuxPolynomials.jl","p=x+y^2+x^3+y^3","Mvp{Int64}: x³+x+y³+y²")
+@test mytest("PuiseuxPolynomials.jl","discriminant(Pol(p,:x))","Mvp{Int64}: 27y⁶+54y⁵+27y⁴+4")
 @test mytest("PuiseuxPolynomials.jl","@Mvp x,y; p=(x+y^(1//2)+1)^3","Mvp{Int64,Rational{Int64}}: x³+3x²y½+3x²+3xy+6xy½+3x+y³⁄₂+3y+3y½+1")
 @test mytest("PuiseuxPolynomials.jl","coefficient(p,:y,1//2)","Mvp{Int64,Rational{Int64}}: 3x²+6x+3")
 @test mytest("PuiseuxPolynomials.jl","coefficient(p,:x,1)","Mvp{Int64,Rational{Int64}}: 3y+6y½+3")
@@ -120,9 +116,9 @@ end
 @test mytest("PuiseuxPolynomials.jl","laurent_denominator(x^-1,y^-2+x^4)","Monomial{Int64}:xy²")
 @test mytest("PuiseuxPolynomials.jl","lcm(x^2-y^2,(x+y)^2)","Mvp{Int64}: -x³-x²y+xy²+y³")
 @test mytest("PuiseuxPolynomials.jl","@Mvp x,y,z; F=[x^2+y^2+z^2-1,x^2-y+z^2,x-z]","3-element Vector{Mvp{Int64, Int64}}:\n x²+y²+z²-1\n x²-y+z²\n x-z")
-@test mytest("PuiseuxPolynomials.jl","grobner_basis(F)","3-element Vector{Mvp{Int64, Int64}}:\n x-z\n -y+2z²\n 4z⁴+2z²-1")
-@test mytest("PuiseuxPolynomials.jl","grobner_basis(F;lt=grlex)","3-element Vector{Mvp{Int64, Int64}}:\n x-z\n y²+y-1\n -y+2z²")
-@test mytest("PuiseuxPolynomials.jl","grobner_basis(F;lt=grevlex)","3-element Vector{Mvp{Int64, Int64}}:\n x-z\n y²+y-1\n 2x²-y")
+@test mytest("PuiseuxPolynomials.jl","grobner_basis(F)","3-element Vector{Mvp{Rational{Int64}, Int64}}:\n (1//1)x+(-1//1)z\n (-1//1)y+(2//1)z²\n (4//1)z⁴+(2//1)z²-1//1")
+@test mytest("PuiseuxPolynomials.jl","grobner_basis(F;lt=grlex)","3-element Vector{Mvp{Rational{Int64}, Int64}}:\n (1//1)x+(-1//1)z\n (1//1)y²+(1//1)y-1//1\n (-1//1)y+(2//1)z²")
+@test mytest("PuiseuxPolynomials.jl","grobner_basis(F;lt=grevlex)","3-element Vector{Mvp{Rational{Int64}, Int64}}:\n (1//1)x+(-1//1)z\n (1//1)y²+(1//1)y-1//1\n (2//1)x²+(-1//1)y")
 @test mytest("PuiseuxPolynomials.jl","@Mvp x,y,z; p=x+y+z","Mvp{Int64}: x+y+z")
 @test mytest("PuiseuxPolynomials.jl","rename_variables(p,Symbol.('A':'Z'))","Mvp{Int64}: A+B+C")
 @test mytest("PuiseuxPolynomials.jl","rename_variables(p,[:U,:V])","Mvp{Int64}: U+V+z")
