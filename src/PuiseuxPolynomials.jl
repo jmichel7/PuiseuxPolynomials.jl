@@ -1,20 +1,21 @@
 """
-This package implements Puiseux polynomials, that is linear combinations of
-monomials  of the type `x₁^{a₁}… xₙ^{aₙ}` where `xᵢ` are variables and `aᵢ`
-are  exponents which can  be arbitrary rational  numbers. When the `aᵢ` are
-integers  we refer to "multivariate Laurent polynomials", and when tha `aᵢ`
-are  positive integers we refer then to "multivariate polynomials" (or true
-polynomials).
+This  package implements  Puiseux polynomials,  that is linear combinations
+with  coefficients  of  some  type  `C`  of monomials of the type `x₁^{a₁}…
+xₙ^{aₙ}`  where  `xᵢ`  are  variables  and  `aᵢ` are exponents which can be
+arbitrary  rational  numbers.  When  the  `aᵢ`  are  integers  we  speak of
+"multivariate Laurent polynomials", and when the `aᵢ` are positive integers
+we speak of "multivariate polynomials" (or true polynomials).
 
 This  package also implements  multivariate rational fractions, constructed
-as  the quotient of two Laurent  polynomials (which is normalized to become
-the  quotient of  two true  polynomials). This  package is  in particular a
-perfectly  usable (and  quite good  I hope)  implementation of multivariate
-polynomials  and multivariate rational fractions if you are only interested
-in that.
+as  the quotient of two Laurent polynomials  (which is normalised to be the
+quotient  of  two  true  polynomials).  In  particular,  this  package is a
+perfectly  usable (and hopefully quite good) implementation of multivariate
+polynomials  and multivariate rational  fractions, if that  is what you are
+interested in.
 
-The main use of Puiseux polynomials is they are the ring of integers of the
-algebraic closure of the the multivariate rational fractions. In particular
+The main use of Puiseux polynomials is that, if the elements of `C` form an
+algebraically  closed field, they are the ring of integers of the algebraic
+closure   of  the  the  multivariate   rational  fractions.  In  particular
 cyclotomic  Hecke algebras take their  character values and representations
 in them.
 
@@ -26,9 +27,10 @@ Our  Puiseux polynomials have  the parametric type  `Mvp{C,E}` where `C` is
 the  type of the coefficients and `E` is the type of the exponents: `E=Int`
 for   Laurent  polynomials;  `E=Rational{Int}`  for  more  general  Puiseux
 polynomials.  When printing the  type of an  `Mvp`, only `C`  is printed if
-`E==Int`. Rational fractions are only defined for numerator and denominator
-true  polynomials and have type `Frac{Mvp{C,Int}}`  --- the quotient of two
-Laurent polynomials is normalized to a quotient of two true polynomials.
+`E==Int`.  Rational  fractions  are  only  defined  if  the  numerator  and
+denominator  are true  polynomials; they  have type `Frac{Mvp{C,Int}}`. The
+quotient of two Laurent polynomials is normalised to a quotient of two true
+polynomials.
 
 We first look at how to make Puiseux polynomials.
 
@@ -53,10 +55,10 @@ Mvp{Int64,Rational{Int64}}: x½
 julia> Mvp(3)  # convert a number to an Mvp with only a constant term
 Mvp{Int64}: 3
 ```
-It  is convenient to create `Mvp`s using variables such as `x,y` above. The
-functions  `repr` or `print` show an `Mvp` in a form which can be read back
-in  Julia -- this  is also the  way an `Mvp`  is printed in another context
-than the repl, IJulia or pluto:
+It  is convenient  to create  `Mvp`s using  variables like `x,y` above. The
+functions  `repr` or `print`  dispaly an `Mvp`  in a form  that can be read
+back  in Julia --  this is also  the way an  `Mvp` is printed  in a context
+other than the repl, IJulia or pluto:
 
 ```julia-repl
 julia> repr(3x*y^-2+4)
@@ -154,20 +156,20 @@ julia> valuation(p),valuation(p,:x),valuation(p,:y)
 (-1, 0, -2)
 ```
 
-Terms  are totally ordered in an `Mvp`  by a monomial ordering (that is, an
-ordering  on  monomials  so  that  `x<y`  implies `xz<yz` for any monomials
-`x,y,z`).  The terms are in decreasing order, so that the first term is the
-highest.  By  default,  the  ordering  is  `lex`. The orderings `grlex` and
-`grevlex` are also implemented (see their docstring and `grobner_basis` for
-how to use them).
+The  terms in an  `Mvp` are ordered  by a monomial  order (that is, a total
+order  on  monomials  such  that  `x<y`  implies  `xz<yz` for any monomials
+`x,y,z`).  The terms are in descending order, so that the first term is the
+highest.  The default order is `lex`.  The orders `grlex` and `grevlex` are
+also  implemented (see their docstrings and  `grobner_basis` for how to use
+them).
 
-An  `Mvp` is a *scalar*  if the valuation and  degree are `0`. The function
-`scalar`  returns the  constant coefficient  if the  `Mvp` is a scalar, and
-`nothing` otherwise.
+An `Mvp` is a *scalar* if the valuation and degree are `0` (it has a single
+term  corresponding to the  `one` monomial). The  function `scalar` returns
+the constant coefficient if the `Mvp` is a scalar, and `nothing` otherwise.
 
 Usual  arithmetic (`+`, `-`,  `*`, `^`, `/`,  `//`, `one`, `isone`, `zero`,
 `iszero`,  `==`)  works.  Elements  of  type  `<:Number`  are considered as
-scalars for scalar operations on the coefficients.
+scalars for scalar multiplication or division of the coefficients.
 
 ```julia-repl
 julia> p
@@ -460,15 +462,15 @@ end
 
 """
 `lex(a::Monomial, b::Monomial)`
-The  "lex" ordering,  where `a<b`  if the  first variable  in `a/b`
-occurs to a positive power.
+The  "lex" order, where  `a<b` if the  first variable in  `a/b` occurs to a
+positive power.
 """
 lex(a::Monomial, b::Monomial)=lex(pairs(a),pairs(b))
 
 """
 `grlex(a::Monomial, b::Monomial)`
-The "grlex" ordering, where `a<b̀` if `degree(a)>degree(b)` or the degrees
-are equal but `lex(a,b)`.
+The "grlex" order, where `a<b̀` if `degree(a)>degree(b)` or the degrees are
+equal but `lex(a,b)`.
 """
 function grlex(a::Monomial, b::Monomial)
   da=degree(a);db=degree(b)
@@ -478,7 +480,7 @@ end
 
 """
 `grevlex(a::Monomial, b::Monomial)`
-The "grevlex" ordering, where `a<b̀` if `degree(a)>degree(b)` or the degrees
+The  "grevlex" order, where `a<b̀`  if `degree(a)>degree(b)` or the degrees
 are equal but the last variable in `a/b` occurs to a negative power.
 """
 function grevlex(a::Monomial, b::Monomial)
@@ -492,7 +494,7 @@ end
 
 For  our implementation of `Mvp`s to  work, `isless` must define a monomial
 order (that is, for monomials `m,a,b` we have `a<b => a*m<b*m`). By default
-we  use the  "lex" ordering.
+we  use the  "lex" order.
 """
 @inline Base.isless(a::Monomial, b::Monomial)=lex(a,b)
 
@@ -1510,8 +1512,8 @@ end
 `grobner_basis(F;lt=lex)`
 
 computes  a Gröbner basis  of the polynomial  ideal generated by the `Mvp`s
-given  by the vector `F`. The  keyword `lt` describes the monomial ordering
-to use.
+given  by the vector `F`. The keyword  `lt` describes the monomial order to
+use.
 ```julia-repl
 julia> @Mvp x,y,z; F=[x^2+y^2+z^2-1,x^2-y+z^2,x-z]
 3-element Vector{Mvp{Int64, Int64}}:
@@ -1537,8 +1539,8 @@ julia> grobner_basis(F;lt=grevlex)
  (1//1)y²+(1//1)y-1//1
  (2//1)x²+(-1//1)y
 ```
-There is no keyword to change the ordering of the variables. We suggest
-to use `rename_variables` for this purpose.
+There is no keyword to change the order of the variables. We suggest to use
+`rename_variables` for this purpose.
 """
 function grobner_basis(F;lt=lex)
 # Cox-Little-O'Shea Th. 9 §10 chap.2
