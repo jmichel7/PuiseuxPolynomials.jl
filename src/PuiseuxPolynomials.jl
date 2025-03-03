@@ -603,6 +603,8 @@ function Base.show(io::IO, p::Mvp)
     print(io,"Mvp_(")
     join(io,pairs(p),", ")
     print(io,")")
+  elseif get(io,:naive,false)
+    show(IOContext(io,:limit=>true,:showbasis=>(io,s)->repr(s)),p.d)
   else
     print(io,typeof(p),"(")
     io=IOContext(io,:typeinfo=>eltype(p))
