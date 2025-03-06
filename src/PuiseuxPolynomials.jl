@@ -576,9 +576,14 @@ macro Monomial(t)
 end
 
 Base.broadcastable(p::Mvp)=Ref(p)
+Base.:*(a::AbstractArray,b::Mvp)=a.*b
+Base.:*(a::Mvp,b::AbstractArray)=a.*b
+Base.:*(a::Mvp,b::Missing)=missing
+Base.:*(a::Missing,b::Mvp)=missing
 Base.cmp(a::Mvp,b::Mvp)=cmp(a.d,b.d)
 Base.isless(a::Mvp,b::Mvp)=cmp(a,b)==-1
 Base.hash(a::Mvp,h::UInt)=hash(a.d,h)
+Base.isfinite(a::Mvp)=true
 
 function Base.show(io::IO, ::MIME"text/html", a::Mvp)
   print(IOContext(io,:TeX=>true),"\$",a,"\$")
