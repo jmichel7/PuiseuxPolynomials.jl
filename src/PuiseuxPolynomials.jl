@@ -56,7 +56,7 @@ julia> Mvp(3)  # convert a number to an Mvp with only a constant term
 Mvp{Int64}: 3
 ```
 It  is convenient  to create  `Mvp`s using  variables like `x,y` above. The
-functions  `repr` or `print`  dispaly an `Mvp`  in a form  that can be read
+functions  `repr` or `print`  display an `Mvp`  in a form  that can be read
 back  in Julia --  this is also  the way an  `Mvp` is printed  in a context
 other than the repl, IJulia or pluto:
 
@@ -648,10 +648,9 @@ Base.convert(::Type{Mvp{T,N}},a::Mvp{T1,N1}) where {T,T1,N,N1}=
 Base.convert(::Type{Mvp},x::Mvp)=x
 Base.convert(::Type{Mvp},v::Symbol)=Mvp_(Monomial(v)=>1)
 Mvp(x::Number)=convert(Mvp,x)
-# stupid stuff to make LU work
-Base.adjoint(a::Mvp)=conj(a)
-Base.transpose(a::Mvp)=a
-Base.abs(a::Mvp)=a
+Base.adjoint(a::Mvp)=conj(a) # stupid stuff to make LU work
+Base.transpose(a::Mvp)=a # stupid stuff to make LU work
+Base.abs(a::Mvp)=a # stupid stuff to make LU work
 
 Base.:(==)(a::Mvp, b::Mvp)=a.d==b.d
 Base.:(==)(a::Mvp,x::Number)=(iszero(a) && iszero(x)) || (!isnothing(x) && x==scalar(a))
