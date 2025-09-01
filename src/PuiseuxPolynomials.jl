@@ -1307,6 +1307,7 @@ Base.eltype(p::Mvp{T,N}) where{T,N} =T
 
 Base.denominator(p::Mvp)=lcm(denominator.(coefficients(p)))
 Base.numerator(p::Mvp{<:Rational{T},N}) where{T,N} =convert(Mvp{T,N},p*denominator(p))
+Base.numerator(p::Mvp)=p*denominator(p)
 #----------cohabitation of monomials and Mvps ------------------------------------
 
 Base.promote_rule(::Type{Monomial{N}},::Type{T2}) where {N,T2<:Number}=Mvp{T2,N}
