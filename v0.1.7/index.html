@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Home · PuiseuxPolynomials.jl</title><meta name="title" content="Home · PuiseuxPolynomials.jl"/><meta property="og:title" content="Home · PuiseuxPolynomials.jl"/><meta property="twitter:title" content="Home · PuiseuxPolynomials.jl"/><meta name="description" content="Documentation for PuiseuxPolynomials.jl."/><meta property="og:description" content="Documentation for PuiseuxPolynomials.jl."/><meta property="twitter:description" content="Documentation for PuiseuxPolynomials.jl."/><meta property="og:url" content="https://jmichel7.github.io/PuiseuxPolynomials.jl/"/><meta property="twitter:url" content="https://jmichel7.github.io/PuiseuxPolynomials.jl/"/><link rel="canonical" href="https://jmichel7.github.io/PuiseuxPolynomials.jl/"/><script data-outdated-warner src="assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="assets/documenter.js"></script><script src="search_index.js"></script><script src="siteinfo.js"></script><script src="../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href>PuiseuxPolynomials.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li class="is-active"><a class="tocitem" href>Home</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Home</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Home</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/jmichel7/PuiseuxPolynomials.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/main/docs/src/index.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Puiseux-polynomials"><a class="docs-heading-anchor" href="#Puiseux-polynomials">Puiseux polynomials</a><a id="Puiseux-polynomials-1"></a><a class="docs-heading-anchor-permalink" href="#Puiseux-polynomials" title="Permalink"></a></h1><p>Documentation for <a href="https://github.com/jmichel7/PuiseuxPolynomials">PuiseuxPolynomials</a></p><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="PuiseuxPolynomials.PuiseuxPolynomials" href="#PuiseuxPolynomials.PuiseuxPolynomials"><code>PuiseuxPolynomials.PuiseuxPolynomials</code></a> — <span class="docstring-category">Module</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><p>This  package implements  multivariate Puiseux  polynomials, that is linear combinations  with  coefficients  of  some  type <code>T</code> of monomials <code>x₁^{a₁}… xₙ^{aₙ}</code>  where  <code>xᵢ</code>  are  variables  and  <code>aᵢ</code> are exponents which can be arbitrary  rational  numbers.  When  the  <code>aᵢ</code>  are  integers  we  speak of &quot;multivariate Laurent polynomials&quot;, and when the <code>aᵢ</code> are positive integers we speak of &quot;multivariate polynomials&quot; (or true polynomials).</p><p>This  package also implements  multivariate rational fractions, constructed as  the quotient of  two Laurent polynomials  (which are standardized to be the  quotient of  two true  polynomials and  to have  no common factor). In particular,  this package is a perfectly  usable (and hopefully quite good) implementation   of  multivariate  polynomials  and  multivariate  rational fractions, if that is what you are interested in.</p><p>The main use of Puiseux polynomials is that, if the elements of <code>T</code> form an algebraically closed field, Puisuex Polynomials are the ring of integers of the  algebraic  closure  of  the  the  multivariate  rational fractions. In particular  cyclotomic  Hecke  algebras  take  their  character  values and representations in them.</p><p>This  package depends only on the packages <code>Reexport</code>, <code>LaurentPolynomials</code> and <code>ModuleElts</code>s; the names defined by <code>LaurentPolynomials</code> are reexported by this package.</p><p>Our  Puiseux polynomials have  the parametric type  <code>Mvp{T,E}</code> where <code>T</code> is the  type of the coefficients and <code>E</code> is the type of the exponents: <code>E=Int</code> for  Laurent  polynomials  and  <code>E=Rational{Int}</code>  for more general Puiseux polynomials.  When printing the  type of an  <code>Mvp</code>, only <code>T</code>  is printed if <code>E==Int</code>.  Rational  fractions  are  only  defined  if  the  numerator  and denominator  are true  polynomials; they  have type <code>Frac{Mvp{T,Int}}</code>.</p><p>We first look at how to make Puiseux polynomials. The macro <a href="#PuiseuxPolynomials.@Mvp-Tuple{Any}"><code>@Mvp</code></a> used  as <code>@Mvp x₁,…,xₙ</code> assigns (in the global scope of the current module) to  each Julia name <code>xᵢ</code> an <code>Mvp</code> representing an indeterminate suitable to build  multivariate polynomials or rational fractions.  This is thus a good start to a session with <code>Mvp</code>s. <code>Mvp(:x₁,…,:xₙ)</code> creates the same <code>Mvp</code>s as a list.</p><pre><code class="language-julia-repl hljs">julia&gt; @Mvp x,y # creates the variables x,y
+
+julia&gt; x,y=Mvp(:x,:y) # another way to do the same
+(x, y)
+
+julia&gt; (x+y^-1)^3
+Mvp{Int64}: x³+3x²y⁻¹+3xy⁻²+y⁻³
+
+julia&gt; x+Mvp(:z)
+Mvp{Int64}: x+z
+
+julia&gt; x^(1//2)  # a Puiseux monomial
+Mvp{Int64,Rational{Int64}}: x½
+
+julia&gt; Mvp(3)  # convert a number to an Mvp with only a constant term
+Mvp{Int64}: 3</code></pre><p>It  is convenient  to create  <code>Mvp</code>s using  variables like <code>x,y</code> above. The functions  <code>repr</code> or <code>print</code>  display an <code>Mvp</code>  in a form  that can be read back  in Julia –  this is also  the way an  <code>Mvp</code> is printed  in a context other than the repl, IJulia or pluto:</p><pre><code class="language-julia-repl hljs">julia&gt; repr(3x*y^-2+4)
+&quot;Mvp{Int64, Int64}([:x=&gt;1,:y=&gt;-2]=&gt;3,[]=&gt;4)&quot;</code></pre><p>It  is better not to use this  form casually, since the arguments <em>must</em> be normalized (sorted by key, and no duplicate key).</p><p>Only  monomials and one-term <code>Mvp</code>s can  be raised to a non-integral power; the  <code>Mvp</code> with  one term  coefficient <code>c</code>  times the  monomial <code>m</code>  can be raised  to a fractional power of denominator <code>d</code> if and only if <code>root(c,d)</code> is defined (this is equivalent to <code>c^(1//d)</code> for floats);</p><pre><code class="language-julia-repl hljs">julia&gt; (4x)^(1//2)
+Mvp{Int64,Rational{Int64}}: 2x½
+
+julia&gt; (2.0x)^(1//2)
+Mvp{Float64,Rational{Int64}}: 1.4142135623730951x½
+
+julia&gt; root(2.0x)
+Mvp{Float64,Rational{Int64}}: 1.4142135623730951x½</code></pre><p>Some  other  packages  extend  <code>root</code>;  for  instance,  in my other package <code>CylotomicNumbers</code> I define square roots of rationals as cyclotomics, and I also have implemented arbitrary roots of roots of unity.</p><pre><code class="language-julia-rep1 hljs">julia&gt; using CyclotomicNumbers
+
+julia&gt; (2x)^(1//2)
+Mvp{Cyc{Int64},Rational{Int64}}: √2x½
+
+julia&gt; (E(3)*x)^(2//3)
+Mvp{Cyc{Int64},Rational{Int64}}: ζ₉²x⅔</code></pre><p>There  are various ways to take an <code>Mvp</code> apart. <a href="#PuiseuxPolynomials.term"><code>term</code></a> below is the most   direct;   look   also   at   the   functions  <a href="#PuiseuxPolynomials.coefficient"><code>coefficient</code></a>, <a href="#LaurentPolynomials.coefficients-Union{Tuple{N}, Tuple{T}, Tuple{Mvp{T, N}, Symbol}} where {T, N}"><code>coefficients</code></a>,        <a href="#Base.pairs-Tuple{Monomial}"><code>pairs</code></a>,        <a href="#PuiseuxPolynomials.monomials"><code>monomials</code></a>, <a href="#PuiseuxPolynomials.variables"><code>variables</code></a> and <a href="#PuiseuxPolynomials.powers"><code>powers</code></a>.</p><pre><code class="language-julia-repl hljs">julia&gt; p=3x*y^-2+4
+Mvp{Int64}: 3xy⁻²+4
+
+julia&gt; term(p,1) # a term is a Pair monomial=&gt;coefficient
+xy⁻² =&gt; 3
+
+julia&gt; term(p,2) # the trivial monomial Monomial() prints as an empty string
+ =&gt; 4
+
+julia&gt; length(p) # the number of terms
+2
+
+julia&gt; term.(p,1:length(p)) # same as pairs(p)
+2-element Vector{Pair{Monomial{Int64}, Int64}}:
+ xy⁻² =&gt; 3
+      =&gt; 4
+
+julia&gt; last(term(p,1)) # same as first(coefficients(p))
+3
+
+julia&gt; m=first(term(p,1)) # same as first(monomials(p))
+Monomial{Int64}:xy⁻²
+
+julia&gt; length(m) # how many variables in m
+2
+
+julia&gt; Pair.(variables(m),powers(m)) # same as pairs(m)
+2-element Vector{Pair{Symbol, Int64}}:
+ :x =&gt; 1
+ :y =&gt; -2
+
+julia&gt; degree(m,:x) # power of x in m
+1
+
+julia&gt; degree(m,:y) # power of y in m
+-2</code></pre><p>The valuation and degree of an Mvp can be inspected globally or variable by variable.</p><pre><code class="language-julia-repl hljs">julia&gt; p
+Mvp{Int64}: 3xy⁻²+4
+
+julia&gt; variables(p)
+2-element Vector{Symbol}:
+ :x
+ :y
+
+julia&gt; degree(p),degree(p,:x),degree(p,:y)
+(0, 1, 0)
+
+julia&gt; valuation(p),valuation(p,:x),valuation(p,:y)
+(-1, 0, -2)</code></pre><p>The  terms in an  <code>Mvp</code> are ordered  by a monomial  order (that is, a total order  on  monomials  such  that  <code>x&lt;y</code>  implies  <code>xz&lt;yz</code> for any monomials <code>x,y,z</code>).  The terms are in descending order, so that the first term is the highest. The default order is <a href="#PuiseuxPolynomials.lex"><code>lex</code></a>. The orders <a href="#PuiseuxPolynomials.grlex"><code>grlex</code></a> and <a href="#PuiseuxPolynomials.grevlex"><code>grevlex</code></a>   are   also   implemented   (see  their  docstrings  and <a href="#PuiseuxPolynomials.grobner_basis"><code>grobner_basis</code></a> for how to use them).</p><p>An <code>Mvp</code> is a <em>scalar</em> if the valuation and degree are <code>0</code> (it has a single term  corresponding to  the <code>one</code>  monomial). The function <a href="#LaurentPolynomials.scalar"><code>scalar</code></a> returns  the constant coefficient  if the <code>Mvp</code>  is a scalar, and <code>nothing</code> otherwise.</p><p>Usual  arithmetic (<code>+</code>, <code>-</code>,  <code>*</code>, <code>^</code>, <code>/</code>,  <code>//</code>, <code>one</code>, <code>isone</code>, <code>zero</code>, <code>iszero</code>,  <code>==</code>)  works.  Elements  of  type  <code>&lt;:Number</code>  are considered as scalars for scalar multiplication or division of the coefficients.</p><pre><code class="language-julia-repl hljs">julia&gt; p
+Mvp{Int64}: 3xy⁻²+4
+
+julia&gt; p^2
+Mvp{Int64}: 9x²y⁻⁴+24xy⁻²+16
+
+julia&gt; p/2
+Mvp{Float64}: 1.5xy⁻²+2.0
+
+julia&gt; p//2
+Mvp{Rational{Int64}}: (3//2)xy⁻²+2//1</code></pre><p>When  converting an <code>Mvp</code> to another type of <code>Mvp</code> one needs to specify the two  type parameters  (the type  of the  coefficients and  the type  of the exponents).</p><pre><code class="language-julia-repl hljs">julia&gt; Mvp{Float64,Rational{Int}}(p)
+Mvp{Float64,Rational{Int64}}: 3.0xy⁻²+4.0</code></pre><p>One  can evaluate an <code>Mvp</code>,  setting the value of  some variables, by using the  function call syntax. </p><pre><code class="language-julia-repl hljs">julia&gt; p=x+y
+Mvp{Int64}: x+y
+
+julia&gt; p(x=2)    # evaluate p at x=2
+Mvp{Int64}: y+2
+
+julia&gt; value(p,:x=&gt;2) # there is also a more explicit [`value`](@ref) function.
+Mvp{Int64}: y+2
+
+julia&gt; p(x=2,y=x) # simultaneous evaluation
+Mvp{Int64}: x+2
+
+julia&gt; value(p,:x=&gt;2,:y=&gt;x)
+Mvp{Int64}: x+2</code></pre><p>Note  that  an  <code>Mvp</code>  always  evaluates  to an <code>Mvp</code>, for consistency. You should  use <a href="#LaurentPolynomials.scalar"><code>scalar</code></a> on the  result of giving values  to all variables in a <code>Mvp</code> to get a number.</p><pre><code class="language-julia-repl hljs">julia&gt; p(x=1,y=2)
+Mvp{Int64}: 3
+
+julia&gt; scalar(p(x=1,y=2))
+3
+
+julia&gt; v=(x^(1//2))(x=2.0)
+Mvp{Float64,Rational{Int64}}: 1.4142135623730951
+
+julia&gt; scalar(v)
+1.4142135623730951</code></pre><p>One  can divide an <code>Mvp</code> by another  when the division is exact, or compute the <a href="#Base.gcd-Tuple{Mvp, Mvp}"><code>gcd</code></a> and <a href="#Base.lcm-Tuple{Mvp, Mvp}"><code>lcm</code></a> of two <code>Mvp</code>s.</p><pre><code class="language-julia-repl hljs">julia&gt; LinearAlgebra.exactdiv(x^2-y^2,x-y) # errors if the division is not exact
+Mvp{Int64}: x+y
+
+julia&gt; (x+y)/(2x^2)   # divide by a monomial
+Mvp{Float64}: 0.5x⁻¹+0.5x⁻²y
+
+julia&gt; (x+y)//(2x^2)
+Mvp{Rational{Int64}}: (1//2)x⁻¹+(1//2)x⁻²y
+
+julia&gt; (x+y)/(x-y)   # if the division is not exact one gets a rational fraction
+Frac{Mvp{Int64, Int64}}: (x+y)/(x-y)</code></pre><p>Raising  a non-monomial  Laurent polynomial  to a  negative power returns a rational   fraction.  Rational  fractions  are  normalized  such  that  the numerator  and denominators are true polynomials  prime to each other. They have  the  arithmetic  operations  <code>+</code>,  <code>-</code>  , <code>*</code>, <code>/</code>, <code>//</code>, <code>^</code>, <code>inv</code>, <code>one</code>,  <code>isone</code>, <code>zero</code>, <code>iszero</code> (these  operations can operate between an <code>Mvp</code> or a <code>Number</code> and a <code>Frac{&lt;:Mvp}</code>).</p><pre><code class="language-julia-repl hljs">julia&gt; (x+1)^-2
+Frac{Mvp{Int64, Int64}}: 1/(x²+2x+1)
+
+julia&gt; x+1/(y+1)
+Frac{Mvp{Int64, Int64}}: (xy+x+1)/(y+1)
+
+julia&gt; 1/(y-1)-1/(y+1)
+Frac{Mvp{Int64, Int64}}: 2/(y²-1)</code></pre><p>One  can evaluate a <code>Frac</code>,  setting the value of  some variables, by using the function call syntax or the <code>value</code> function:</p><pre><code class="language-julia-repl hljs">julia&gt; ((x+y)/(x-y))(x=y+1)
+Mvp{Float64}: 2.0y+1.0
+
+julia&gt; value((x+y)/(x-y),:x=&gt;y+1;Rational=true) # Rational=true says use //
+Mvp{Int64}: 2y+1</code></pre><p>A  <code>Frac</code> can be dissected using <code>numerator</code> and <code>denominator</code>. <code>Frac</code>s and <code>Mvp</code>s  are  scalars  for  broadcasting  and  can be sorted (have <code>cmp</code> and <code>isless</code> methods).</p><pre><code class="language-julia-repl hljs">julia&gt; m=[x+y x-y;x+1 y+1]
+2×2 Matrix{Mvp{Int64, Int64}}:
+ x+y  x-y
+ x+1  y+1
+
+julia&gt; n=inv(Frac.(m))
+2×2 Matrix{Frac{Mvp{Int64, Int64}}}:
+ (-y-1)/(x²-2xy-y²-2y)  (x-y)/(x²-2xy-y²-2y)
+ (x+1)/(x²-2xy-y²-2y)   (-x-y)/(x²-2xy-y²-2y)
+
+julia&gt; lcm(denominator.(n))
+Mvp{Int64}: x²-2xy-y²-2y</code></pre><p>Finally,   <code>Mvp</code>s  have   methods  <code>conj</code>,   <code>adjoint</code>  which   operate  on coefficients,  a method <a href="#LaurentPolynomials.derivative"><code>derivative</code></a>,  and methods <code>positive_part</code>, <code>negative_part</code> and <code>bar</code> (useful for Kazhdan-Lusztig theory).</p><pre><code class="language-julia_repl hljs">julia&gt; @Mvp z
+Mvp{Int64}: z
+
+julia&gt; hessian(p,vars)=[derivative(derivative(p,x),y) for x in vars, y in vars]
+hessian (generic function with 1 method)
+
+julia&gt; hessian(x^2*y^2*z^2,[:x,:y,:z])
+3×3 Matrix{Mvp{Int64, Int64}}:
+ 2y²z²  4xyz²  4xy²z
+ 4xyz²  2x²z²  4x²yz
+ 4xy²z  4x²yz  2x²y²
+
+julia&gt; jacobian(pols,vars)=[derivative(p,v) for p in pols, v in vars]
+jacobian (generic function with 1 method)
+
+julia&gt; jacobian([x,y,z],[:x,:y,:z])
+3×3 Matrix{Mvp{Int64, Int64}}:
+ 1  0  0
+ 0  1  0
+ 0  0  1
+
+julia&gt; p=(x+y^-1)^4
+Mvp{Int64}: x⁴+4x³y⁻¹+6x²y⁻²+4xy⁻³+y⁻⁴
+
+julia&gt; positive_part(p)
+Mvp{Int64}: x⁴
+
+julia&gt; negative_part(p)
+Mvp{Int64}: y⁻⁴
+
+julia&gt; bar(p)
+Mvp{Int64}: y⁴+4x⁻¹y³+6x⁻²y²+4x⁻³y+x⁻⁴</code></pre><p>Despite  the degree of generality of our  polynomials, the speed is not too shabby.  For the Fateman test f(f+1)  where f=(1+x+y+z+t)^15, we take 3sec. According to the Nemo paper, Sagemath takes 10sec and Nemo takes 1.6sec.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/3c69c7b9528a4897bff214fd7a9bdd7b9766cc1e/src/PuiseuxPolynomials.jl#L1-L335">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="PuiseuxPolynomials.Mvp" href="#PuiseuxPolynomials.Mvp"><code>PuiseuxPolynomials.Mvp</code></a> — <span class="docstring-category">Type</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><p><code>Mvp</code>s are implemented as a list of pairs <code>monomial=&gt;coefficient</code> sorted by the monomial order <code>lex</code>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/3c69c7b9528a4897bff214fd7a9bdd7b9766cc1e/src/PuiseuxPolynomials.jl#L523-L526">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="PuiseuxPolynomials.@Mvp-Tuple{Any}" href="#PuiseuxPolynomials.@Mvp-Tuple{Any}"><code>PuiseuxPolynomials.@Mvp</code></a> — <span class="docstring-category">Macro</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><p><code>@Mvp x,y</code></p><p>is  equivalent to  <code>(x,y)=Mvp(:x,:y)</code> excepted  it creates  <code>x,y</code> in the global scope of the current module, since it uses <code>eval</code>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/3c69c7b9528a4897bff214fd7a9bdd7b9766cc1e/src/PuiseuxPolynomials.jl#L546-L551">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="PuiseuxPolynomials.Mvp-Tuple{Symbol}" href="#PuiseuxPolynomials.Mvp-Tuple{Symbol}"><code>PuiseuxPolynomials.Mvp</code></a> — <span class="docstring-category">Method</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><p><code>Mvp(x::Symbol)</code> creates the <code>Mvp</code> with one term of degree one and coefficient 1 with variable <code>x</code></p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/3c69c7b9528a4897bff214fd7a9bdd7b9766cc1e/src/PuiseuxPolynomials.jl#L537-L540">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="LaurentPolynomials.valuation" href="#LaurentPolynomials.valuation"><code>LaurentPolynomials.valuation</code></a> — <span class="docstring-category">Function</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><p><code>valuation(m::Mvp[,v::Symbol])</code></p><p>The <code>valuation</code> of an <code>Mvp</code> is the minimal degree of a monomial.</p><p>With  second argument a variable name, <code>valuation</code> returns the valuation of the polynomial in that variable.</p><pre><code class="language-julia-repl hljs">julia&gt; @Mvp x,y; a=x^2+x*y
+Mvp{Int64}: x²+xy
+
+julia&gt; valuation(a), valuation(a,:y), valuation(a,:x)
+(2, 0, 1)</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/3c69c7b9528a4897bff214fd7a9bdd7b9766cc1e/src/PuiseuxPolynomials.jl#L759-L775">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="LaurentPolynomials.degree" href="#LaurentPolynomials.degree"><code>LaurentPolynomials.degree</code></a> — <span class="docstring-category">Function</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><p><code>degree(m::Mvp[,v::Symbol])</code></p><p>The <code>degree</code> of a monomial is the sum of  the exponents of the variables. The <code>degree</code> of an <code>Mvp</code> is the largest degree of a monomial.</p><p>With  second argument a  variable name, <code>degree</code>  returns the degree of the polynomial in that variable.</p><pre><code class="language-julia-repl hljs">julia&gt; a=x^2+x*y
+Mvp{Int64}: x²+xy
+
+julia&gt; degree(a), degree(a,:y), degree(a,:x)
+(2, 1, 2)</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/3c69c7b9528a4897bff214fd7a9bdd7b9766cc1e/src/PuiseuxPolynomials.jl#L739-L755">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="PuiseuxPolynomials.variables" href="#PuiseuxPolynomials.variables"><code>PuiseuxPolynomials.variables</code></a> — <span class="docstring-category">Function</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><p><code>variables(a::Monomial)</code> iterator on the variables of <code>a</code> (a sorted list of <code>Symbol</code>s)</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/3c69c7b9528a4897bff214fd7a9bdd7b9766cc1e/src/PuiseuxPolynomials.jl#L382">source</a></section><section><div><p><code>variables(p::Mvp)</code></p><p><code>variables(v::AbstractArray)</code></p><p>returns  the list of variables of <code>p</code> (resp. of all <code>p</code> in <code>v</code>) as a sorted list of <code>Symbol</code>s.</p><pre><code class="language-julia-repl hljs">julia&gt; @Mvp x,y,z
+
+julia&gt; variables([z,[y+z],x])
+3-element Vector{Symbol}:
+ :x
+ :y
+ :z</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/3c69c7b9528a4897bff214fd7a9bdd7b9766cc1e/src/PuiseuxPolynomials.jl#L992-L1009">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="LaurentPolynomials.coefficients-Union{Tuple{N}, Tuple{T}, Tuple{Mvp{T, N}, Symbol}} where {T, N}" href="#LaurentPolynomials.coefficients-Union{Tuple{N}, Tuple{T}, Tuple{Mvp{T, N}, Symbol}} where {T, N}"><code>LaurentPolynomials.coefficients</code></a> — <span class="docstring-category">Method</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><p><code>coefficients(p::Mvp, var::Symbol)</code> </p><p>returns  a Dict with keys the degree  in <code>var</code> and values the corresponding coefficient of <code>p</code> with respect to <code>var</code>.</p><pre><code class="language-julia-repl hljs">julia&gt; p=(x+y+inv(y))^4
+Mvp{Int64}: x⁴+4x³y+4x³y⁻¹+6x²y²+12x²+6x²y⁻²+4xy³+12xy+12xy⁻¹+4xy⁻³+y⁴+4y²+6+4y⁻²+y⁻⁴
+
+julia&gt; coefficients(p,:x)
+Dict{Int64, Mvp{Int64, Int64}} with 5 entries:
+  0 =&gt; y⁴+4y²+6+4y⁻²+y⁻⁴
+  4 =&gt; 1
+  2 =&gt; 6y²+12+6y⁻²
+  3 =&gt; 4y+4y⁻¹
+  1 =&gt; 4y³+12y+12y⁻¹+4y⁻³
+
+julia&gt; coefficients(p,:y)
+Dict{Int64, Mvp{Int64, Int64}} with 9 entries:
+  0  =&gt; x⁴+12x²+6
+  4  =&gt; 1
+  -1 =&gt; 4x³+12x
+  2  =&gt; 6x²+4
+  -3 =&gt; 4x
+  -2 =&gt; 6x²+4
+  -4 =&gt; 1
+  3  =&gt; 4x
+  1  =&gt; 4x³+12x</code></pre><p>The  same  caveat  is  applicable  to  <code>coefficients</code> as to evaluating: the values  are always <code>Mvp</code>s. To get a list of scalars for the coefficients of a  univariate polynomial represented as a <code>Mvp</code>, one should use <code>scalar</code> on the values of <code>coefficients</code>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/3c69c7b9528a4897bff214fd7a9bdd7b9766cc1e/src/PuiseuxPolynomials.jl#L818-L853">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="LaurentPolynomials.coefficients-Tuple{Mvp}" href="#LaurentPolynomials.coefficients-Tuple{Mvp}"><code>LaurentPolynomials.coefficients</code></a> — <span class="docstring-category">Method</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><p><code>coefficients(p::Mvp)</code> </p><p>is an efficient iterator over the coefficients of the monomials in <code>p</code>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/3c69c7b9528a4897bff214fd7a9bdd7b9766cc1e/src/PuiseuxPolynomials.jl#L811-L815">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="PuiseuxPolynomials.coefficient" href="#PuiseuxPolynomials.coefficient"><code>PuiseuxPolynomials.coefficient</code></a> — <span class="docstring-category">Function</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><p><code>coefficient(p::Mvp,m::Monomial)</code></p><p>The coefficient of the polynomial <code>p</code> on the monomial <code>m</code>.</p><pre><code class="language-julia-repl hljs">julia&gt; @Mvp x,y; p=(x-y)^3
+Mvp{Int64}: x³-3x²y+3xy²-y³
+
+julia&gt; coefficient(p,Monomial_(:x=&gt;2,:y=&gt;1)) # coefficient on x²y
+-3
+
+julia&gt; coefficient(p,Monomial()) # constant coefficient
+0</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/3c69c7b9528a4897bff214fd7a9bdd7b9766cc1e/src/PuiseuxPolynomials.jl#L779-L794">source</a></section><section><div><p><code>coefficient(p::Mvp, var::Symbol, d)</code> </p><p>returns  the coefficient of degree <code>d</code> in the variable <code>var</code> in the <code>Mvp</code> <code>p</code>.</p><pre><code class="language-julia-repl hljs">julia&gt; @Mvp x,y; p=(x+y^(1//2)+1)^3
+Mvp{Int64,Rational{Int64}}: x³+3x²y½+3x²+3xy+6xy½+3x+y³⁄₂+3y+3y½+1
+
+julia&gt; coefficient(p,:y,1//2)
+Mvp{Int64,Rational{Int64}}: 3x²+6x+3
+
+julia&gt; coefficient(p,:x,1)
+Mvp{Int64,Rational{Int64}}: 3y+6y½+3</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/3c69c7b9528a4897bff214fd7a9bdd7b9766cc1e/src/PuiseuxPolynomials.jl#L912-L927">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="PuiseuxPolynomials.Monomial" href="#PuiseuxPolynomials.Monomial"><code>PuiseuxPolynomials.Monomial</code></a> — <span class="docstring-category">Type</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><p><code>Monomials</code> are implemented as a <code>ModuleElt</code>, that is essentially as a list of  pairs <code>:variable=&gt;degree</code> sorted in  the alphabetic order of variables. The degree can be <code>Int</code> or <code>Rational{Int}</code>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/3c69c7b9528a4897bff214fd7a9bdd7b9766cc1e/src/PuiseuxPolynomials.jl#L345-L349">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="PuiseuxPolynomials.monomials" href="#PuiseuxPolynomials.monomials"><code>PuiseuxPolynomials.monomials</code></a> — <span class="docstring-category">Function</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><p><code>monomials(p::Mvp)</code> </p><p>is an efficient iterator over the monomials of <code>p</code>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/3c69c7b9528a4897bff214fd7a9bdd7b9766cc1e/src/PuiseuxPolynomials.jl#L804-L808">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="PuiseuxPolynomials.powers" href="#PuiseuxPolynomials.powers"><code>PuiseuxPolynomials.powers</code></a> — <span class="docstring-category">Function</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><p><code>powers(a::Monomial)</code> iterator on the powers of variables in <code>a</code></p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/3c69c7b9528a4897bff214fd7a9bdd7b9766cc1e/src/PuiseuxPolynomials.jl#L384">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="PuiseuxPolynomials.term" href="#PuiseuxPolynomials.term"><code>PuiseuxPolynomials.term</code></a> — <span class="docstring-category">Function</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><p><code>term(p::Mvp,i::Integer)</code> The <code>i</code>-th term (a pair monomial=&gt;coefficient) of <code>p</code>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/3c69c7b9528a4897bff214fd7a9bdd7b9766cc1e/src/PuiseuxPolynomials.jl#L632-L635">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="Base.pairs-Tuple{Monomial}" href="#Base.pairs-Tuple{Monomial}"><code>Base.pairs</code></a> — <span class="docstring-category">Method</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><p><code>pairs(a::Monomial)</code> </p><p>returns the pairs <code>:variable=&gt;power</code> in <code>a</code>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/3c69c7b9528a4897bff214fd7a9bdd7b9766cc1e/src/PuiseuxPolynomials.jl#L386-L390">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="Base.isless-Tuple{Monomial, Monomial}" href="#Base.isless-Tuple{Monomial, Monomial}"><code>Base.isless</code></a> — <span class="docstring-category">Method</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><p><code>isless(a::Monomial,b::Monomial)</code></p><p>For  our implementation of <code>Mvp</code>s to  work, <code>isless</code> must define a monomial order (that is, for monomials <code>m,a,b</code> we have <code>a&lt;b =&gt; a*m&lt;b*m</code>). By default we  use the  &quot;lex&quot; order.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/3c69c7b9528a4897bff214fd7a9bdd7b9766cc1e/src/PuiseuxPolynomials.jl#L492-L498">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="PuiseuxPolynomials.lex" href="#PuiseuxPolynomials.lex"><code>PuiseuxPolynomials.lex</code></a> — <span class="docstring-category">Function</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><p><code>lex(a::Monomial, b::Monomial)</code> The  &quot;lex&quot; order, where  <code>a&lt;b</code> if the  first variable in  <code>a/b</code> occurs to a positive power.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/3c69c7b9528a4897bff214fd7a9bdd7b9766cc1e/src/PuiseuxPolynomials.jl#L463-L467">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="PuiseuxPolynomials.grlex" href="#PuiseuxPolynomials.grlex"><code>PuiseuxPolynomials.grlex</code></a> — <span class="docstring-category">Function</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><p><code>grlex(a::Monomial, b::Monomial)</code> The &quot;grlex&quot; order, where <code>a&lt;b̀</code> if <code>degree(a)&gt;degree(b)</code> or the degrees are equal but <code>lex(a,b)</code>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/3c69c7b9528a4897bff214fd7a9bdd7b9766cc1e/src/PuiseuxPolynomials.jl#L470-L474">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="PuiseuxPolynomials.grevlex" href="#PuiseuxPolynomials.grevlex"><code>PuiseuxPolynomials.grevlex</code></a> — <span class="docstring-category">Function</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><p><code>grevlex(a::Monomial, b::Monomial)</code> The  &quot;grevlex&quot; order, where <code>a&lt;b̀</code>  if <code>degree(a)&gt;degree(b)</code> or the degrees are equal but the last variable in <code>a/b</code> occurs to a negative power.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/3c69c7b9528a4897bff214fd7a9bdd7b9766cc1e/src/PuiseuxPolynomials.jl#L481-L485">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="Base.pairs-Tuple{Mvp}" href="#Base.pairs-Tuple{Mvp}"><code>Base.pairs</code></a> — <span class="docstring-category">Method</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><p><code>pairs(p::Mvp)</code> </p><p>returns the pairs monomial=&gt;coefficient in <code>p</code>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/3c69c7b9528a4897bff214fd7a9bdd7b9766cc1e/src/PuiseuxPolynomials.jl#L797-L801">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="LaurentPolynomials.Pol-Union{Tuple{Mvp{T}}, Tuple{T}} where T" href="#LaurentPolynomials.Pol-Union{Tuple{Mvp{T}}, Tuple{T}} where T"><code>LaurentPolynomials.Pol</code></a> — <span class="docstring-category">Method</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><p><code>Pol(p::Mvp{T}) where T</code></p><p>converts the one-variable <code>Mvp{T}</code> <code>p</code> to a <code>Pol{T}</code>. It is an error if <code>p</code> has  more  than  one  variable,  or  this  variable appears to non-integral powers.</p><pre><code class="language-julia-repl hljs">julia&gt; @Mvp x; @Pol q; Pol(x^2+x)
+Pol{Int64}: q²+q</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/3c69c7b9528a4897bff214fd7a9bdd7b9766cc1e/src/PuiseuxPolynomials.jl#L945-L956">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="LaurentPolynomials.Pol-Union{Tuple{N}, Tuple{T}, Tuple{Mvp{T, N}, Symbol}} where {T, N}" href="#LaurentPolynomials.Pol-Union{Tuple{N}, Tuple{T}, Tuple{Mvp{T, N}, Symbol}} where {T, N}"><code>LaurentPolynomials.Pol</code></a> — <span class="docstring-category">Method</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><p><code>Pol(p::Mvp,v::Symbol)</code></p><p>returns  a polynomial whose coefficients are  the coefficients of the <code>Mvp</code> <code>p</code>  with respect to the variable <code>v</code>  (as <code>Mvp</code>s). The variable <code>v</code> should appear only with integral powers in <code>p</code>.</p><pre><code class="language-julia-repl hljs">julia&gt; p=(x+y^(1//2))^3
+Mvp{Int64,Rational{Int64}}: x³+3x²y½+3xy+y³⁄₂
+
+julia&gt; Pol(:q); Pol(p,:x)
+Pol{Mvp{Int64, Rational{Int64}}}: q³+3y½q²+3yq+y³⁄₂</code></pre><p>This  can be used for instance to  compute the discriminant of a polynomial with respect to one of its variables:</p><pre><code class="language-julia-repl hljs">julia&gt; p=x+y^2+x^3+y^3
+Mvp{Int64}: x³+x+y³+y²
+
+julia&gt; discriminant(Pol(p,:x))
+Mvp{Int64}: 27y⁶+54y⁵+27y⁴+4</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/3c69c7b9528a4897bff214fd7a9bdd7b9766cc1e/src/PuiseuxPolynomials.jl#L870-L893">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="PuiseuxPolynomials.Mvp-Tuple{Pol}" href="#PuiseuxPolynomials.Mvp-Tuple{Pol}"><code>PuiseuxPolynomials.Mvp</code></a> — <span class="docstring-category">Method</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><p><code>Mvp(p::Pol[,v])</code> converts <code>p</code> to  an  <code>Mvp</code>, with the same variable name   if <code>v</code> omitted or the variable name <code>v</code>.</p><pre><code class="language-julia-repl hljs">julia&gt; @Pol q
+Pol{Int64}: q
+
+julia&gt; Mvp(q^2+q)
+Mvp{Int64}: q²+q
+
+julia&gt; Mvp(q^2+q,:x)
+Mvp{Int64}: x²+x</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/3c69c7b9528a4897bff214fd7a9bdd7b9766cc1e/src/PuiseuxPolynomials.jl#L967-L981">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="PuiseuxPolynomials.value" href="#PuiseuxPolynomials.value"><code>PuiseuxPolynomials.value</code></a> — <span class="docstring-category">Function</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><pre><code class="language-julia hljs">`value(p::Mvp,:x₁=&gt;v₁,:x₂=&gt;v₂,...)`
+ ̀(p::Mvp)(x₁=v₁,…,xₙ=vₙ)`</code></pre><p>returns  the value of  <code>p</code> when doing  the simultaneous substitution of the variable <code>:x1</code> by <code>v1</code>, of <code>x2</code> by <code>v2</code>, …</p><pre><code class="language-julia-repl hljs">julia&gt; p=-2+7x^5*inv(y)
+Mvp{Int64}: 7x⁵y⁻¹-2
+
+julia&gt; p(x=2)
+Mvp{Int64}: -2+224y⁻¹
+
+julia&gt; p(y=1)
+Mvp{Int64}: 7x⁵-2
+
+julia&gt; p(x=2,y=1)
+Mvp{Int64}: 222</code></pre><p>One should pay attention to the fact that the last value is not an integer, but  a constant <code>Mvp</code> (for consistency).  See the function <code>scalar</code> for how to convert such constants to their base ring.</p><pre><code class="language-julia-repl hljs">julia&gt; p(x=y)
+Mvp{Int64}: 7y⁴-2
+
+julia&gt; p(x=y,y=x)
+Mvp{Int64}: -2+7x⁻¹y⁵</code></pre><p>Evaluating an <code>Mvp</code> which is a Puiseux polynomial may cause calls to <code>root</code></p><pre><code class="language-julia-repl hljs">julia&gt; p=x^(1//2)*y^(1//3)
+Mvp{Int64,Rational{Int64}}: x½y⅓
+
+julia&gt; p(;x=y)
+Mvp{Int64,Rational{Int64}}: y⅚
+
+julia&gt; p(;x=4)
+Mvp{Int64,Rational{Int64}}: 2y⅓
+
+julia&gt; p(;y=2.0)
+Mvp{Float64,Rational{Int64}}: 1.2599210498948732x½</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/3c69c7b9528a4897bff214fd7a9bdd7b9766cc1e/src/PuiseuxPolynomials.jl#L1048-L1095">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="Base.conj" href="#Base.conj"><code>Base.conj</code></a> — <span class="docstring-category">Function</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><p><code>conj(p::Mvp)</code> acts on the coefficients of <code>p</code></p><pre><code class="language-julia-repl hljs">julia&gt; @Mvp x;conj(im*x+1)
+Mvp{Complex{Int64}}: (0 - 1im)x+1 + 0im</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/3c69c7b9528a4897bff214fd7a9bdd7b9766cc1e/src/PuiseuxPolynomials.jl#L717-L724">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="LaurentPolynomials.derivative" href="#LaurentPolynomials.derivative"><code>LaurentPolynomials.derivative</code></a> — <span class="docstring-category">Function</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><p>The  function &#39;derivative(p,v₁,…,vₙ)&#39; returns the  derivative of &#39;p&#39; with  respect to  the variable given by the symbol &#39;v₁&#39;, then <code>v₂</code>, ...</p><pre><code class="language-julia-repl hljs">julia&gt; @Mvp x,y;p=7x^5*y^-1-2
+Mvp{Int64}: 7x⁵y⁻¹-2
+
+julia&gt; derivative(p,:x)
+Mvp{Int64}: 35x⁴y⁻¹
+
+julia&gt; derivative(p,:y)
+Mvp{Int64}: -7x⁵y⁻²
+
+julia&gt; derivative(p,:x,:y)
+Mvp{Int64}: -35x⁴y⁻²
+
+julia&gt; p=x^(1//2)*y^(1//3)
+Mvp{Int64,Rational{Int64}}: x½y⅓
+
+julia&gt; derivative(p,:x)
+Mvp{Rational{Int64},Rational{Int64}}: (1//2)x⁻½y⅓
+
+julia&gt; derivative(p,:y)
+Mvp{Rational{Int64},Rational{Int64}}: (1//3)x½y⁻⅔
+
+julia&gt; derivative(p,:z)
+Mvp{Rational{Int64},Rational{Int64}}: 0</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/3c69c7b9528a4897bff214fd7a9bdd7b9766cc1e/src/PuiseuxPolynomials.jl#L1183-L1212">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="PuiseuxPolynomials.laurent_denominator" href="#PuiseuxPolynomials.laurent_denominator"><code>PuiseuxPolynomials.laurent_denominator</code></a> — <span class="docstring-category">Function</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><p><code>laurent_denominator(p1,p2,…)</code></p><p>returns  the unique  monomial <code>m</code>  of minimal  degree in each variable such that  for all  the Laurent  polynomials <code>p1,p2,…</code>  the product <code>m*pᵢ</code> has a positive degree in each variable.</p><pre><code class="language-julia-repl hljs">julia&gt; laurent_denominator(x^-1,y^-2+x^4)
+Monomial{Int64}:xy²</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/3c69c7b9528a4897bff214fd7a9bdd7b9766cc1e/src/PuiseuxPolynomials.jl#L1283-L1294">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="Base.gcd-Tuple{Mvp, Mvp}" href="#Base.gcd-Tuple{Mvp, Mvp}"><code>Base.gcd</code></a> — <span class="docstring-category">Method</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><p><code>gcd(p::Mvp,  q::Mvp)</code>  computes  the  <code>gcd</code>  of  the  &#39;Mvp&#39; arguments. The arguments must be true polynomials.</p><pre><code class="language-julia-repl hljs">julia&gt; gcd((x+y)^2,x^2-y^2)
+Mvp{Int64}: x+y</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/3c69c7b9528a4897bff214fd7a9bdd7b9766cc1e/src/PuiseuxPolynomials.jl#L1252-L1260">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="Base.lcm-Tuple{Mvp, Mvp}" href="#Base.lcm-Tuple{Mvp, Mvp}"><code>Base.lcm</code></a> — <span class="docstring-category">Method</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><p><code>lcm(p1,p2,...)</code></p><p>Returns  the Lcm  of the  <code>Mvp</code> arguments.  The arguments  must be  true polynomials.</p><pre><code class="language-julia-repl hljs">julia&gt; lcm(x^2-y^2,(x+y)^2)
+Mvp{Int64}: -x³-x²y+xy²+y³</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/3c69c7b9528a4897bff214fd7a9bdd7b9766cc1e/src/PuiseuxPolynomials.jl#L1297-L1307">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="LaurentPolynomials.scalar" href="#LaurentPolynomials.scalar"><code>LaurentPolynomials.scalar</code></a> — <span class="docstring-category">Function</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><p><code>scalar(p::Mvp)</code></p><p>If <code>p</code> is a scalar, return that scalar, otherwise return <code>nothing</code>.</p><pre><code class="language-julia-repl hljs">julia&gt; p=Mvp(:x)+1
+Mvp{Int64}: x+1
+
+julia&gt; w=p(x=4)
+Mvp{Int64}: 5
+
+julia&gt; scalar(w)
+5
+
+julia&gt; typeof(scalar(w))
+Int64</code></pre><p>if  <code>p</code> is an array, then apply <code>scalar</code> to its elements and return <code>nothing</code> if it contains any <code>Mvp</code> which is not a scalar.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/3c69c7b9528a4897bff214fd7a9bdd7b9766cc1e/src/PuiseuxPolynomials.jl#L1014-L1034">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="Base.:^-Tuple{Mvp, AbstractMatrix}" href="#Base.:^-Tuple{Mvp, AbstractMatrix}"><code>Base.:^</code></a> — <span class="docstring-category">Method</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><p><code>Base.:^(p,m;vars=variables(p))</code></p><p>Implements  the action of  a matrix on  <code>Mvp</code>s. <code>vars</code> should  be a list of symbols   representing  variables.   The  polynomial   <code>p</code>  is  changed  by simultaneous  substitution in it of  <code>vᵢ</code> by <code>(v×m)ᵢ</code> where  <code>v</code> is the row vector  with entries  <code>Mvp(vᵢ)</code>. If  <code>vars</code> is  omitted, it  is taken to be <code>variables(p)</code>.</p><pre><code class="language-julia-repl hljs">julia&gt; @Mvp x,y
+
+julia&gt; (x+y)^[1 2;3 1]
+Mvp{Int64}: 3x+4y</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/3c69c7b9528a4897bff214fd7a9bdd7b9766cc1e/src/PuiseuxPolynomials.jl#L1154-L1169">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="LaurentPolynomials.Frac-Tuple{T} where T&lt;:Mvp" href="#LaurentPolynomials.Frac-Tuple{T} where T&lt;:Mvp"><code>LaurentPolynomials.Frac</code></a> — <span class="docstring-category">Method</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><p><code>Frac(a::Mvp,b::Mvp;pol=false,prime=false)</code></p><p><code>Mvp</code>s  <code>a</code> and <code>b</code> are promoted to  same coefficient type, and checked for being  true polynomials  without common  monomial factor (unless <code>pol=true</code> asserts  that this  is already  the case)  and unless <code>prime=true</code> they are made prime to each other by dividing by their gcd.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/3c69c7b9528a4897bff214fd7a9bdd7b9766cc1e/src/PuiseuxPolynomials.jl#L1343-L1350">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="PuiseuxPolynomials.grobner_basis" href="#PuiseuxPolynomials.grobner_basis"><code>PuiseuxPolynomials.grobner_basis</code></a> — <span class="docstring-category">Function</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><p><code>grobner_basis(F;lt=lex)</code></p><p>computes  a Gröbner basis  of the polynomial  ideal generated by the <code>Mvp</code>s given  by the vector <code>F</code>. The keyword  <code>lt</code> describes the monomial order to use.</p><pre><code class="language-julia-repl hljs">julia&gt; @Mvp x,y,z; F=[x^2+y^2+z^2-1,x^2-y+z^2,x-z]
+3-element Vector{Mvp{Int64, Int64}}:
+ x²+y²+z²-1
+ x²-y+z²
+ x-z
+
+julia&gt; grobner_basis(F)
+3-element Vector{Mvp{Rational{Int64}, Int64}}:
+ (1//1)x+(-1//1)z
+ (-1//1)y+(2//1)z²
+ (4//1)z⁴+(2//1)z²-1//1
+
+julia&gt; grobner_basis(F;lt=grlex)
+3-element Vector{Mvp{Rational{Int64}, Int64}}:
+ (1//1)x+(-1//1)z
+ (1//1)y²+(1//1)y-1//1
+ (-1//1)y+(2//1)z²
+
+julia&gt; grobner_basis(F;lt=grevlex)
+3-element Vector{Mvp{Rational{Int64}, Int64}}:
+ (1//1)x+(-1//1)z
+ (1//1)y²+(1//1)y-1//1
+ (2//1)x²+(-1//1)y</code></pre><p>There is no keyword to change the order of the variables. We suggest to use <code>rename_variables</code> for this purpose.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/3c69c7b9528a4897bff214fd7a9bdd7b9766cc1e/src/PuiseuxPolynomials.jl#L1523-L1556">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="PuiseuxPolynomials.rename_variables" href="#PuiseuxPolynomials.rename_variables"><code>PuiseuxPolynomials.rename_variables</code></a> — <span class="docstring-category">Function</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><p><code>rename_variables(p,v)</code> renames <code>variables(p)</code> to <code>v</code></p><p><code>rename_variables(p,l::Pair{Symbol,Symbol}...)</code> renames the  variables in <code>p</code> as indicated by the pairs in <code>l</code>.</p><pre><code class="language-julia-repl hljs">julia&gt; @Mvp x,y,z; p=x+y+z
+Mvp{Int64}: x+y+z
+
+julia&gt; rename_variables(p,Symbol.(&#39;A&#39;:&#39;Z&#39;))
+Mvp{Int64}: A+B+C
+
+julia&gt; rename_variables(p,[:U,:V])
+Mvp{Int64}: U+V+z
+
+julia&gt; rename_variables(p,:x=&gt;:U,:z=&gt;:V) # faster than p(;x=Mvp(:U),z=Mvp(:V))
+Mvp{Int64}: U+V+y</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/jmichel7/PuiseuxPolynomials.jl/blob/3c69c7b9528a4897bff214fd7a9bdd7b9766cc1e/src/PuiseuxPolynomials.jl#L1583-L1602">source</a></section></article></article><nav class="docs-footer"><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.15.0 on <span class="colophon-date" title="Wednesday 12 November 2025 16:06">Wednesday 12 November 2025</span>. Using Julia version 1.12.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
