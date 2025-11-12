@@ -10,7 +10,7 @@ ModuleElts = "4249f315-58d4-4c46-b324-3577fc7dfca0"
 Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 
 [compat]
-LaurentPolynomials = "0.1.5"
+LaurentPolynomials = "0.1.6"
 LinearAlgebra = "1"
 ModuleElts = "0.1.4"
 Reexport = "1"

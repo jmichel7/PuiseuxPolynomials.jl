@@ -1,7 +1,8 @@
-# Puiseux polynomials
-```@contents
-Depth=3
+```@meta
+CurrentModule=PuiseuxPolynomials
 ```
+# Puiseux polynomials
+Documentation for [PuiseuxPolynomials](https://github.com/jmichel7/PuiseuxPolynomials)
 
 ```@docs
 PuiseuxPolynomials
@@ -17,6 +18,7 @@ coefficient
 Monomial
 monomials
 powers
+term
 Base.pairs(::Monomial)
 Base.isless(::Monomial,::Monomial)
 lex

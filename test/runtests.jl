@@ -16,6 +16,7 @@ end
 @testset verbose = true "Gapjm" begin
 @testset "PuiseuxPolynomials.jl" begin
 @test mytest("PuiseuxPolynomials.jl","@Mvp x,y","nothing")
+@test mytest("PuiseuxPolynomials.jl","x,y=Mvp(:x,:y)","(x, y)")
 @test mytest("PuiseuxPolynomials.jl","(x+y^-1)^3","Mvp{Int64}: x³+3x²y⁻¹+3xy⁻²+y⁻³")
 @test mytest("PuiseuxPolynomials.jl","x+Mvp(:z)","Mvp{Int64}: x+z")
 @test mytest("PuiseuxPolynomials.jl","x^(1//2)","Mvp{Int64,Rational{Int64}}: x½")
@@ -32,7 +33,7 @@ end
 @test mytest("PuiseuxPolynomials.jl","last(term(p,1))","3")
 @test mytest("PuiseuxPolynomials.jl","m=first(term(p,1))","Monomial{Int64}:xy⁻²")
 @test mytest("PuiseuxPolynomials.jl","length(m)","2")
-@test mytest("PuiseuxPolynomials.jl","map((x,y)->x=>y,variables(m),powers(m))","2-element Vector{Pair{Symbol, Int64}}:\n :x => 1\n :y => -2")
+@test mytest("PuiseuxPolynomials.jl","Pair.(variables(m),powers(m))","2-element Vector{Pair{Symbol, Int64}}:\n :x => 1\n :y => -2")
 @test mytest("PuiseuxPolynomials.jl","degree(m,:x)","1")
 @test mytest("PuiseuxPolynomials.jl","degree(m,:y)","-2")
 @test mytest("PuiseuxPolynomials.jl","p","Mvp{Int64}: 3xy⁻²+4")
