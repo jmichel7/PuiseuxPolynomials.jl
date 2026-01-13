@@ -710,7 +710,8 @@ function Base.:*(a::Mvp, b::Mvp)
 end
 
 Base.:/(p::Mvp,q::Number)=Mvp(p.d/q)
-Base.://(p::Mvp,q::Number)=Mvp(p.d//q)
+# next line to prevent Mvp(:x)//0 from working
+Base.://(p::Mvp,q::Number)=iszero(q) ? error("division by 0") : Mvp(p.d//q)
 Base.div(a::Mvp,b::Number)=Mvp(div(a.d,b))
 LinearAlgebra.exactdiv(a::Mvp,b::Number)=Mvp(exactdiv(a.d,b))
 
