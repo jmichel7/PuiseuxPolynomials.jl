@@ -334,7 +334,7 @@ shabby.  For the Fateman test f(f+1)  where f=(1+x+y+z+t)^15, we take 3sec.
 According to the Nemo paper, Sagemath takes 10sec and Nemo takes 1.6sec.
 """
 module PuiseuxPolynomials
-using ModuleElts, Reexport, OrderedCollections
+using ModuleElts, Reexport, OrderedCollections, LaTeXStrings
 using LinearAlgebra:LinearAlgebra, exactdiv
 @reexport using LaurentPolynomials
 export coefficient, monomials, powers
@@ -586,7 +586,7 @@ Base.hash(a::Mvp,h::UInt)=hash(a.d,h)
 Base.isfinite(a::Mvp)=true
 
 function Base.show(io::IO, ::MIME"text/html", a::Mvp)
-  print(IOContext(io,:TeX=>true),"\$",a,"\$")
+  print(io,latexstring(repr(a,context=IOContext(io,:TeX=>true))))
 end
 
 function Base.show(io::IO, ::MIME"text/plain", a::Mvp{T,N}) where{T,N}
