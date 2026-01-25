@@ -521,8 +521,8 @@ end
 
 #------------------------------------------------------------------------------
 """
-`Mvp`s are implemented as a list of pairs `monomial=>coefficient` sorted
-by the monomial order `lex`.
+`Mvp`s,  multivariate  Puiseux  polynomials,  are  implemented as a list of
+pairs `monomial=>coefficient` sorted by the monomial order `lex`.
 """
 struct Mvp{T,N} # N=type of exponents T=type of coeffs
   d::ModuleElt{Monomial{N},T}
@@ -585,8 +585,8 @@ Base.isless(a::Mvp,b::Mvp)=cmp(a,b)==-1
 Base.hash(a::Mvp,h::UInt)=hash(a.d,h)
 Base.isfinite(a::Mvp)=true
 
-function Base.show(io::IO, ::MIME"text/html", a::Mvp)
-  print(io,latexstring(repr(a,context=IOContext(io,:TeX=>true))))
+function Base.show(io::IO, ::MIME"text/latex", p::Mvp)
+  print(io,latexstring(repr(p,context=IOContext(io,:TeX=>true))))
 end
 
 function Base.show(io::IO, ::MIME"text/plain", a::Mvp{T,N}) where{T,N}
@@ -966,8 +966,8 @@ function LaurentPolynomials.Pol(x::Mvp{T})where T
 end
 
 """
-`Mvp(p::Pol[,v])` converts `p` to  an  `Mvp`, with the same variable name
-  if `v` omitted or the variable name `v`.
+`Mvp(p::Pol[,v::Symbol])` converts `p` to an `Mvp`  with the variable name `v`,
+or the variable name of `Pol`s if `v` is omitted.
 
 ```julia-repl
 julia> @Pol q

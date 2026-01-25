@@ -1,7 +1,7 @@
 name = "PuiseuxPolynomials"
 uuid = "f53aee1f-40be-4d16-bc74-7d339eee78ec"
 authors = ["Jean Michel <jean.michel@imj-prg.fr>"]
-version = "0.1.8"
+version = "0.1.9"
 
 [deps]
 LaTeXStrings= "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
@@ -13,7 +13,7 @@ Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 
 [compat]
 LaTeXStrings= "1.4"
-LaurentPolynomials = "0.1.6"
+LaurentPolynomials = "0.1.7"
 LinearAlgebra = "1"
 ModuleElts = "0.1.4"
 OrderedCollections = "1"
