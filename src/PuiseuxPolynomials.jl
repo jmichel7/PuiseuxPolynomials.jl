@@ -1440,6 +1440,8 @@ Base.:/(p::Number,q::Mvp)=Mvp(p)/q
 
 Base.:*(a::Frac{<:Mvp},b::Number)=Frac(a.num*b,a.den;pol=true,prime=true)
 Base.:*(b::Number,a::Frac{<:Mvp})=a*b
+Base.:*(a::Frac{<:Mvp},b::Mvp)=Frac(a.num*b,a.den)
+Base.:*(b::Mvp,a::Frac{<:Mvp})=Frac(a.num*b,a.den)
 
 value(p::Frac{<:Mvp},k::Pair...;Rational=false)=Rational ? 
   value(p.num,k...)//value(p.den,k...) : value(p.num,k...)/value(p.den,k...)
