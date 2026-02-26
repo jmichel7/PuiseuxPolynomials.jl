@@ -334,13 +334,13 @@ shabby.  For the Fateman test f(f+1)  where f=(1+x+y+z+t)^15, we take 3sec.
 According to the Nemo paper, Sagemath takes 10sec and Nemo takes 1.6sec.
 """
 module PuiseuxPolynomials
-using ModuleElts, Reexport, OrderedCollections, LaTeXStrings
+using LaTeXStrings, ModuleElts, OrderedCollections, Reexport
 using LinearAlgebra:LinearAlgebra, exactdiv
 @reexport using LaurentPolynomials
 export coefficient, monomials, powers
 export Mvp, Mvp_, Monomial, Monomial_, @Mvp, @Monomial, variables, value, 
-       laurent_denominator, term,
-       lex, grlex, grevlex, grobner_basis, rename_variables, ispositive
+       laurent_denominator, term, ispositive, rename_variables,
+       lex, grlex, grevlex, grobner_basis
 #------------------ Monomials ---------------------------------------------
 """
 `Monomials` are implemented as a `ModuleElt`, that is essentially as a list
@@ -540,7 +540,7 @@ Mvp()=zero(Mvp{Int,Int}) # for some calls to map() to work
 """
 Mvp(x::Symbol...)=length(x)==1 ? Mvp_(Monomial_(first(x)=>1)=>1) : 
                           map(s->Mvp_(Monomial_(s=>1)=>1),x)
-Mvp(x::Mvp;k...)=x
+Mvp(x::Mvp;_...)=x
 Mvp(x::Monomial)=Mvp_(x=>1)
 
 """
@@ -578,12 +578,12 @@ end
 Base.broadcastable(p::Mvp)=Ref(p)
 Base.:*(a::AbstractArray,b::Mvp)=a.*b
 Base.:*(a::Mvp,b::AbstractArray)=a.*b
-Base.:*(a::Mvp,b::Missing)=missing
-Base.:*(a::Missing,b::Mvp)=missing
+Base.:*(::Mvp,::Missing)=missing
+Base.:*(::Missing,::Mvp)=missing
 Base.cmp(a::Mvp,b::Mvp)=cmp(a.d,b.d)
 Base.isless(a::Mvp,b::Mvp)=cmp(a,b)==-1
 Base.hash(a::Mvp,h::UInt)=hash(a.d,h)
-Base.isfinite(a::Mvp)=true
+Base.isfinite(::Mvp)=true
 
 function Base.show(io::IO, ::MIME"text/latex", p::Mvp)
   print(io,latexstring(repr(p,context=IOContext(io,:TeX=>true))))
@@ -894,7 +894,7 @@ Mvp{Int64}: 27y⁶+54y⁵+27y⁴+4
 """
 function LaurentPolynomials.Pol(p::Mvp{T,N},var::Symbol)where{T,N}
   v=Int(valuation(p,var))
-  res=[Pair{Monomial{N},T}[] for i in v:Int(degree(p,var))]
+  res=[Pair{Monomial{N},T}[] for _ in v:Int(degree(p,var))]
   for (m,c) in pairs(p)
     found=false
     for (i,(v1,deg)) in enumerate(pairs(m))
@@ -959,9 +959,10 @@ function LaurentPolynomials.Pol(x::Mvp{T})where T
   l=variables(x)
   if isempty(l) return Pol(scalar(x)) end
   if length(l)>1 error("cannot convert $(length(l))-variate Mvp to Pol") end
-  val=Int(valuation(x))
-  p=zeros(T,Int(degree(x))-val+1)
-  for (mon,coeff) in pairs(x) p[Int(degree(mon))-val+1]=coeff end
+  x=Mvp{T,Int}(x)
+  val=valuation(x)::Int
+  p=zeros(T,degree(x)::Int-val+1)
+  for (mon,coeff) in pairs(x) p[degree(mon)::Int-val+1]=coeff end
   Pol(p,val)
 end
 
@@ -1293,7 +1294,7 @@ julia> laurent_denominator(x^-1,y^-2+x^4)
 Monomial{Int64}:xy²
 ```
 """
-laurent_denominator(pp::Mvp...)=inv(gcd([m for p in pp for (m,c) in pairs(p)]))
+laurent_denominator(pp::Mvp...)=inv(gcd([m for p in pp for m in monomials(p)]))
 
 """
 `lcm(p1,p2,...)`
@@ -1309,7 +1310,7 @@ Mvp{Int64}: -x³-x²y+xy²+y³
 Base.lcm(a::Mvp,b::Mvp)=exactdiv(a*b,gcd(a,b))
 Base.lcm(a::AbstractArray{<:Mvp})=reduce(lcm,a)
 
-Base.eltype(p::Mvp{T,N}) where{T,N} =T
+Base.eltype(::Mvp{T,N}) where{T,N} =T
 
 Base.denominator(p::Mvp)=lcm(denominator.(coefficients(p)))
 Base.numerator(p::Mvp{<:Rational{T},N}) where{T,N} =convert(Mvp{T,N},p*denominator(p))
@@ -1393,17 +1394,14 @@ function Base.convert(::Type{Frac{Mvp{T,Int}}},a::Frac{<:Mvp{<:Rational{T},Int}}
   Frac(numerator(n)*denominator(d),numerator(d)*denominator(n))
 end
   
-function Base.promote_rule(a::Type{T1},b::Type{Frac{T2}})where {T1<:Mvp,T2<:Mvp}
+Base.promote_rule(::Type{T1},::Type{Frac{T2}})where {T1<:Mvp,T2<:Mvp}=
   Frac{promote_type(T1,T2)}
-end
 
-function Base.promote_rule(a::Type{Frac{T1}},b::Type{Frac{T2}})where {T1<:Mvp,T2<:Mvp}
+Base.promote_rule(::Type{Frac{T1}},::Type{Frac{T2}})where {T1<:Mvp,T2<:Mvp}=
   Frac{promote_type(T1,T2)}
-end
 
-function Base.promote_rule(a::Type{T1},b::Type{Frac{T2}})where {T1<:Number,T2<:Mvp}
+Base.promote_rule(::Type{T1},::Type{Frac{T2}})where {T1<:Number,T2<:Mvp}=
   Frac{promote_type(Mvp{T1,Int},T2)}
-end
 
 function Base.inv(p::Mvp)
   if length(p)==1
