@@ -5,11 +5,11 @@ function mytest(file::String,cmd::String,man::String)
   println(file," ",cmd)
   exec=repr(MIME("text/plain"),eval(Meta.parse(cmd)),context=:limit=>true)
   if endswith(cmd,";") return true end
-  exec=replace(exec,r"\s*$"m=>""); exec=replace(exec,r"\s*$"s=>"")
-  exec=replace(exec,r"^\s*"=>"")
+  exec=replace(exec,r"\s*$"m=>"",r"\s*$"s=>"",r"^\s*"=>"")
   if exec==man return true end
   inds=collect(eachindex(exec))
-  i=inds[findfirst(i->i<=lastindex(man) && exec[i]!=man[i],inds)]
+  i=findfirst(i->i<=lastindex(man) && exec[i]!=man[i],inds)
+  if i==nothing i=ncodeunits(man)+1 else i=inds[i] end
   print("exec=$(repr(exec[i:end]))\nmanl=$(repr(man[i:end]))\n")
   false
 end
@@ -63,6 +63,7 @@ end
 @test mytest("PuiseuxPolynomials.jl","1/(y-1)-1/(y+1)","Frac{Mvp{Int64, Int64}}: 2/(y²-1)")
 @test mytest("PuiseuxPolynomials.jl","((x+y)/(x-y))(x=y+1)","Mvp{Float64}: 2.0y+1.0")
 @test mytest("PuiseuxPolynomials.jl","value((x+y)/(x-y),:x=>y+1;Rational=true)","Mvp{Int64}: 2y+1")
+@test mytest("PuiseuxPolynomials.jl","((x+y)/(x-y))(x=y+1,Rational=true)","Mvp{Int64}: 2y+1")
 @test mytest("PuiseuxPolynomials.jl","m=[x+y x-y;x+1 y+1]","2×2 Matrix{Mvp{Int64, Int64}}:\n x+y  x-y\n x+1  y+1")
 @test mytest("PuiseuxPolynomials.jl","n=inv(Frac.(m))","2×2 Matrix{Frac{Mvp{Int64, Int64}}}:\n (-y-1)/(x²-2xy-y²-2y)  (x-y)/(x²-2xy-y²-2y)\n (x+1)/(x²-2xy-y²-2y)   (-x-y)/(x²-2xy-y²-2y)")
 @test mytest("PuiseuxPolynomials.jl","lcm(denominator.(n))","Mvp{Int64}: x²-2xy-y²-2y")
@@ -72,7 +73,7 @@ end
 @test mytest("PuiseuxPolynomials.jl","@Mvp x,y; a=x^2+x*y","Mvp{Int64}: x²+xy")
 @test mytest("PuiseuxPolynomials.jl","valuation(a), valuation(a,:y), valuation(a,:x)","(2, 0, 1)")
 @test mytest("PuiseuxPolynomials.jl","@Mvp x,y; p=(x-y)^3","Mvp{Int64}: x³-3x²y+3xy²-y³")
-@test mytest("PuiseuxPolynomials.jl","coefficient(p,Monomial_(:x=>2,:y=>1))","-3")
+@test mytest("PuiseuxPolynomials.jl","coefficient(p,Monomial(ModuleElt(:x=>2,:y=>1)))","-3")
 @test mytest("PuiseuxPolynomials.jl","coefficient(p,Monomial())","0")
 @test mytest("PuiseuxPolynomials.jl","p=(x+y+inv(y))^4","Mvp{Int64}: x⁴+4x³y+4x³y⁻¹+6x²y²+12x²+6x²y⁻²+4xy³+12xy+12xy⁻¹+4xy⁻³+y⁴+4y²+6+4y⁻²+y⁻⁴")
 @test mytest("PuiseuxPolynomials.jl","coefficients(p,:x)","OrderedCollections.OrderedDict{Int64, Mvp{Int64, Int64}} with 5 entries:\n  0 => y⁴+4y²+6+4y⁻²+y⁻⁴\n  1 => 4y³+12y+12y⁻¹+4y⁻³\n  2 => 6y²+12+6y⁻²\n  3 => 4y+4y⁻¹\n  4 => 1")
@@ -80,7 +81,7 @@ end
 @test mytest("PuiseuxPolynomials.jl","p=(x+y^(1//2))^3","Mvp{Int64,Rational{Int64}}: x³+3x²y½+3xy+y³⁄₂")
 @test mytest("PuiseuxPolynomials.jl","Pol(:q); Pol(p,:x)","Pol{Mvp{Int64, Rational{Int64}}}: q³+3y½q²+3yq+y³⁄₂")
 @test mytest("PuiseuxPolynomials.jl","p=x+y^2+x^3+y^3","Mvp{Int64}: x³+x+y³+y²")
-@test mytest("PuiseuxPolynomials.jl","discriminant(Pol(p,:x))","Mvp{Int64}: 27y⁶+54y⁵+27y⁴+4")
+@test mytest("PuiseuxPolynomials.jl","discriminant(Pol(p,:x))","Mvp{Int64}: -27y⁶-54y⁵-27y⁴-4")
 @test mytest("PuiseuxPolynomials.jl","@Mvp x,y; p=(x+y^(1//2)+1)^3","Mvp{Int64,Rational{Int64}}: x³+3x²y½+3x²+3xy+6xy½+3x+y³⁄₂+3y+3y½+1")
 @test mytest("PuiseuxPolynomials.jl","coefficient(p,:y,1//2)","Mvp{Int64,Rational{Int64}}: 3x²+6x+3")
 @test mytest("PuiseuxPolynomials.jl","coefficient(p,:x,1)","Mvp{Int64,Rational{Int64}}: 3y+6y½+3")
@@ -99,11 +100,14 @@ end
 @test mytest("PuiseuxPolynomials.jl","p(y=1)","Mvp{Int64}: 7x⁵-2")
 @test mytest("PuiseuxPolynomials.jl","p(x=2,y=1)","Mvp{Int64}: 222")
 @test mytest("PuiseuxPolynomials.jl","p(x=y)","Mvp{Int64}: 7y⁴-2")
-@test mytest("PuiseuxPolynomials.jl","p(x=y,y=x)","Mvp{Int64}: -2+7x⁻¹y⁵")
+@test mytest("PuiseuxPolynomials.jl","p(x=y,y=x)","Mvp{Rational{Int64}}: -2//1+(7//1)x⁻¹y⁵")
 @test mytest("PuiseuxPolynomials.jl","p=x^(1//2)*y^(1//3)","Mvp{Int64,Rational{Int64}}: x½y⅓")
 @test mytest("PuiseuxPolynomials.jl","p(;x=y)","Mvp{Int64,Rational{Int64}}: y⅚")
 @test mytest("PuiseuxPolynomials.jl","p(;x=4)","Mvp{Int64,Rational{Int64}}: 2y⅓")
 @test mytest("PuiseuxPolynomials.jl","p(;y=2.0)","Mvp{Float64,Rational{Int64}}: 1.2599210498948732x½")
+@test (x^(1//2))(x=4)==2
+@test (x^-1)(x=4)==1//4
+@test typeof(((x+y)//(x-y))(Rational=true,x=2,y=1))==Mvp{Int,Int}
 @test mytest("PuiseuxPolynomials.jl","@Mvp x,y","nothing")
 @test mytest("PuiseuxPolynomials.jl","(x+y)^[1 2;3 1]","Mvp{Int64}: 3x+4y")
 @test mytest("PuiseuxPolynomials.jl","@Mvp x,y;p=7x^5*y^-1-2","Mvp{Int64}: 7x⁵y⁻¹-2")

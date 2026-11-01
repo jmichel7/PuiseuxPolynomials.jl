@@ -272,6 +272,9 @@ Mvp{Float64}: 2.0y+1.0
 
 julia> value((x+y)/(x-y),:x=>y+1;Rational=true) # Rational=true says use //
 Mvp{Int64}: 2y+1
+
+julia> ((x+y)/(x-y))(x=y+1,Rational=true)
+Mvp{Int64}: 2y+1
 ```
 A  `Frac` can be dissected using `numerator` and `denominator`. `Frac`s and
 `Mvp`s  are  scalars  for  broadcasting  and  can be sorted (have `cmp` and
@@ -337,8 +340,9 @@ module PuiseuxPolynomials
 using LaTeXStrings, ModuleElts, OrderedCollections, Reexport
 using LinearAlgebra:LinearAlgebra, exactdiv
 @reexport using LaurentPolynomials
+@reexport using ModuleElts: ModuleElt
 export coefficient, monomials, powers
-export Mvp, Mvp_, Monomial, Monomial_, @Mvp, @Monomial, variables, value, 
+export Mvp, Mvp_, Monomial, @Mvp, @Monomial, variables, value, 
        laurent_denominator, term, ispositive, rename_variables,
        lex, grlex, grevlex, grobner_basis
 #------------------ Monomials ---------------------------------------------
@@ -786,7 +790,7 @@ The coefficient of the polynomial `p` on the monomial `m`.
 julia> @Mvp x,y; p=(x-y)^3
 Mvp{Int64}: x³-3x²y+3xy²-y³
 
-julia> coefficient(p,Monomial_(:x=>2,:y=>1)) # coefficient on x²y
+julia> coefficient(p,Monomial(ModuleElt(:x=>2,:y=>1))) # coefficient on x²y
 -3
 
 julia> coefficient(p,Monomial()) # constant coefficient
@@ -889,7 +893,7 @@ julia> p=x+y^2+x^3+y^3
 Mvp{Int64}: x³+x+y³+y²
 
 julia> discriminant(Pol(p,:x))
-Mvp{Int64}: 27y⁶+54y⁵+27y⁴+4
+Mvp{Int64}: -27y⁶-54y⁵-27y⁴-4
 ```
 """
 function LaurentPolynomials.Pol(p::Mvp{T,N},var::Symbol)where{T,N}
@@ -1047,6 +1051,8 @@ function LaurentPolynomials.scalar(m::AbstractArray)
   if !any(isnothing,p) return p end
 end
 
+bestinv(x)=isone(x) ? x : isone(-x) ? x : inv(x*1//1)
+
 """
     `value(p::Mvp,:x₁=>v₁,:x₂=>v₂,...)`
      ̀(p::Mvp)(x₁=v₁,…,xₙ=vₙ)`
@@ -1067,17 +1073,15 @@ Mvp{Int64}: 7x⁵-2
 julia> p(x=2,y=1)
 Mvp{Int64}: 222
 ```
-
 One should pay attention to the fact that the last value is not an integer,
 but  a constant `Mvp` (for consistency).  See the function `scalar` for how
 to convert such constants to their base ring.
-
 ```julia-repl
 julia> p(x=y)
 Mvp{Int64}: 7y⁴-2
 
 julia> p(x=y,y=x)
-Mvp{Int64}: -2+7x⁻¹y⁵
+Mvp{Rational{Int64}}: -2//1+(7//1)x⁻¹y⁵
 ```
 Evaluating an `Mvp` which is a Puiseux polynomial may cause calls to `root`
 
@@ -1115,7 +1119,10 @@ function value(p::Mvp,k::Pair...)
         badj=Int[]
         res=Mvp(c1) 
       end
-      if isinteger(c) res*=val^Int(c)
+      if isinteger(c) 
+        if c<0 res*=bestinv(val)^Int(-c)
+        else res*=val^Int(c)
+        end
       else res*=root(val,denominator(c))^numerator(c)
       end
       push!(badj,j)
@@ -1137,11 +1144,9 @@ end
 
 (p::Mvp)(;arg...)=value(p,arg...)
 
-function LaurentPolynomials.root(a::Integer,n=2)
-  if n!=2 return end
-  r=isqrt(a)
-  if r^2==a return r end
-end
+#@test (x^(1//2))(x=4)==2
+#@test (x^-1)(x=4)==1//4
+#@test typeof(((x+y)//(x-y))(Rational=true,x=2,y=1))==Mvp{Int,Int}
 
 function LaurentPolynomials.root(p::Mvp,n=2)
   if iszero(p) return p end
@@ -1249,6 +1254,7 @@ function LinearAlgebra.exactdiv(p::Mvp,q::Mvp)
   res
 end
 
+# the next line is type piracy but makes gcd(Mvp{Float}) work
 Base.gcd(a::AbstractFloat,b::AbstractFloat)=one(a)*one(b)
 
 """
@@ -1406,12 +1412,13 @@ Base.promote_rule(::Type{T1},::Type{Frac{T2}})where {T1<:Number,T2<:Mvp}=
 function Base.inv(p::Mvp)
   if length(p)==1
     (m,c)=term(p,1)
-    return Mvp_(inv(m)=>c^2==1 ? c : 1/c) 
+    return Mvp_(inv(m)=>bestinv(c))
   end
   Frac(Mvp(1),p;prime=true)
 end
 
 function Base.://(a::Mvp,b::Mvp)
+  if iszero(b) error("division by 0") end
   if iszero(a) return a end
   if length(b)==1
     (m,c)=term(b,1)
@@ -1421,6 +1428,7 @@ function Base.://(a::Mvp,b::Mvp)
 end
 
 function Base.:/(a::Mvp,b::Mvp)
+  if iszero(b) error("division by 0") end
   if iszero(a) return a end
   if length(b)==1
     (m,c)=term(b,1)
@@ -1444,10 +1452,12 @@ Base.:*(b::Mvp,a::Frac{<:Mvp})=Frac(a.num*b,a.den)
 value(p::Frac{<:Mvp},k::Pair...;Rational=false)=Rational ? 
   value(p.num,k...)//value(p.den,k...) : value(p.num,k...)/value(p.den,k...)
 
-(p::Frac{<:Mvp})(;arg...)=value(p,arg...)
+(p::Frac{<:Mvp})(;Rational=false,arg...)=value(p,arg...;Rational)
 
 #--------------------  Grobner bases -------------------------------------
 # the reference is Cox, Little, O'Shea chapter 2
+# all the subroutines work only with polynomials over fields.
+# grobner changes the coefficients of the argument by *1//1
 
 # if given a vector of monomial=>coeff return a tuple of
 # minimum term and its index (using monomial order lt)
