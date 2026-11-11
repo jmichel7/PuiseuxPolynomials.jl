@@ -298,7 +298,7 @@ Finally,   `Mvp`s  have   methods  `conj`,   `adjoint`  which   operate  on
 coefficients,  a method [`derivative`](@ref),  and methods `positive_part`,
 `negative_part` and `bar` (useful for Kazhdan-Lusztig theory).
 
-```julia_repl
+```julia-repl
 julia> @Mvp z
 Mvp{Int64}: z
 
@@ -320,17 +320,17 @@ julia> jacobian([x,y,z],[:x,:y,:z])
  0  1  0
  0  0  1
 
-julia> p=(x+y^-1)^4
-Mvp{Int64}: x⁴+4x³y⁻¹+6x²y⁻²+4xy⁻³+y⁻⁴
+julia> p=(x+1+y^-1)^3
+Mvp{Int64}: x³+3x²+3x²y⁻¹+3x+6xy⁻¹+3xy⁻²+1+3y⁻¹+3y⁻²+y⁻³
 
-julia> positive_part(p)
-Mvp{Int64}: x⁴
+julia> positive_part(p) # includes degree zero part
+Mvp{Int64}: x³+3x²+3x+1
 
-julia> negative_part(p)
-Mvp{Int64}: y⁻⁴
+julia> negative_part(p) # includes degree zero part
+Mvp{Int64}: 1+3y⁻¹+3y⁻²+y⁻³
 
 julia> bar(p)
-Mvp{Int64}: y⁴+4x⁻¹y³+6x⁻²y²+4x⁻³y+x⁻⁴
+Mvp{Int64}: y³+3y²+3y+1+3x⁻¹y²+6x⁻¹y+3x⁻¹+3x⁻²y+3x⁻²+x⁻³
 ```
 Despite  the degree of generality of our  polynomials, the speed is not too
 shabby.  For the Fateman test f(f+1)  where f=(1+x+y+z+t)^15, we take 3sec.
@@ -1453,6 +1453,7 @@ value(p::Frac{<:Mvp},k::Pair...;Rational=false)=Rational ?
   value(p.num,k...)//value(p.den,k...) : value(p.num,k...)/value(p.den,k...)
 
 (p::Frac{<:Mvp})(;Rational=false,arg...)=value(p,arg...;Rational)
+#@test typeof(((x+y)//(x-y))(x=2,y=1;Rational=true))==Mvp{Int64,Int}
 
 #--------------------  Grobner bases -------------------------------------
 # the reference is Cox, Little, O'Shea chapter 2
@@ -1485,6 +1486,7 @@ function quotientLT(p,q;lt=lex)
   qm,qc=LT(q;lt)
   t=pm/qm
   if ispositive(t) Mvp_(t=>exactdiv(pc,qc)) end
+  # to work with integer polynomials: pc*1//1,qc*1//1
 end
 
 # remainder on division of p by list F
